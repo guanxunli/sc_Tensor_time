@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 original data/data
-simulation data/networks
+normalization test/networks
 PT data/data

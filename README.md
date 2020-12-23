@@ -1,2 +1,2 @@
 # sc_Tensor_time
-Do tests for scTenifoldTime.
+Do some quick tensor based method tests for scRNA-seq data. 

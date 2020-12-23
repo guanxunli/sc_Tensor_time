@@ -1,0 +1,9 @@
+"E" "Method" "n_gene"
+"1" 51 "LPA Quad" 679
+"2" 0 "LPA Quad" 28
+"3" 38 "LPA Quad" 46
+"4" 1 "LPA Quad" 219
+"5" 0 "LPA Quad" 214
+"6" 29 "LPA Quad" 287
+"7" 119 "LPA Quad" 359
+"8" 895 "LPA Quad" 4090

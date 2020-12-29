@@ -2,7 +2,7 @@ library(Matrix)
 library(ComplexHeatmap)
 library(ggplot2)
 
-dta <- read.csv("SERGIO/diffOutput_S_1000.csv")
+dta <- read.csv("SERGIO/diffOutput_S_1000.csv", header = FALSE)
 range(dta)
 dim(dta)
 rownames(dta) <- paste0("Gene", 1:nrow(dta))

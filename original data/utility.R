@@ -134,6 +134,64 @@ NMF_fun <- function(net, K){
   return(res_NMF)
 }
 
+#### Symmetrized Laplacian Inverse Matrix (SLIM)
+# net is the network
+# K is the number of communities
+# m is the number of terms of summation
+# gamma is decrease rate
+SLIM_fun <- function(net, gamma = 0.25, m = 8, K = 3){
+  # Calculate the inverse Laplacian matrix
+  D <- rowSums(net)
+  DinvA <- net / D
+  W_hat <- 0
+  alpha <- exp(-gamma)
+  tmp_c <- alpha
+  tmp_m <- DinvA
+  for (i in 1:m){
+    W_hat <- W_hat + tmp_c * tmp_m
+    tmp_c <- tmp_c * tmp_c
+    tmp_m <- tmp_m %*% tmp_m
+  }
+  
+  # Make it symmetry
+  M_hat <- (W_hat + t(W_hat)) / 2
+  
+  # Spectral decomposition
+  M_eig <- RSpectra::eigs_sym(M_hat, k = K, which = "LM")
+  X_hat <- M_eig$vectors
+  
+  # do k-means
+  SLIM_kmeans <- kmeans(X_hat, centers = K, nstart = 10, iter.max = 50)
+  return(SLIM_kmeans$cluster)
+}
+
+#### Multiple adjacency spectral embedding (MASE)
+MASE_fun <- function(net_list, di = 5, K = di){
+  # Do adjacency spectral embedding
+  m <- length(net_list)
+  U <- matrix(NA, nrow = nrow(net_list[[1]]), ncol = m * di)
+  for (i in 1:m){
+    A <- net_list[[i]]
+    A_eig <- RSpectra::eigs_sym(A, k = di, which = "LM")
+    U[ ,(1 + di * (i - 1)):(di * i)] <- A_eig$vectors
+  }
+  U_svd <- RSpectra::svds(U, k = K)
+  V <- U_svd$u
+  
+  # Generate R
+  Rhat_list <- list()
+  for (i in 1:m){
+    Rhat_list[[i]] <- crossprod(V, net_list[[i]] %*% V)
+  }
+  
+  # return results
+  res <- list()
+  res$V <- V
+  res$R <- Rhat_list
+  return(res)
+}
+
+
 ########################################################
 #### scTenifoldNet function modification. ##############
 ########################################################

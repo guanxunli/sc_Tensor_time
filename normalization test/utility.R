@@ -32,11 +32,28 @@ Recall_fun <- function(X, Q){
   return(REC)
 }
 
-metricOutput_fun <- function(Acurracy, ReCall, Q = 0, nCells){
+Fmeasure_fun <- function(X, Q){
+  X <- as.matrix(X)
+  X <- X/max(abs(X))
+  X <- (X - 0)
+  X[abs(X) < quantile(abs(X), Q)] <-  0
+  diag(X) <- 1
+  dataMatrix <- X
+  TP <- sum(dataMatrix[1:40,1:40] > 0) + sum(dataMatrix[41:98,41:98] > 0)
+  FP <- sum(dataMatrix[1:40,41:98] > 0) + sum(dataMatrix[41:98, 1:40] > 0)
+  TN <- sum(dataMatrix[1:40,41:98] < 0) + sum(dataMatrix[41:98, 1:40] < 0)
+  FN <- sum(dataMatrix[1:40,1:40] < 0) + sum(dataMatrix[41:98,41:98] < 0)
+  Fmeasure <- round(TP / (TP + (FP + FN)/2),2)
+  return(Fmeasure)
+}
+
+metricOutput_fun <- function(Acurracy, ReCall, Fmeasure, Q = 0, nCells){
   accMean <- apply(Acurracy, 2, mean)
   accSD <- apply(Acurracy, 2, sd)
   recallMean <- apply(ReCall, 2, mean)
   recallSD <- apply(ReCall, 2, sd)
+  FmeasureMean <- apply(Fmeasure, 2, mean)
+  FmeasureSD <- apply(Fmeasure, 2, sd)
   
   outputMetric <- NULL
   outputMetric$q <- rep(Q, length(nCells))
@@ -47,6 +64,9 @@ metricOutput_fun <- function(Acurracy, ReCall, Q = 0, nCells){
   outputMetric$recallLB <- recallMean - recallSD
   outputMetric$recall <- recallMean
   outputMetric$recallUB <- recallMean + recallSD
+  outputMetric$FmeasureLB <- FmeasureMean - FmeasureSD
+  outputMetric$Fmeasure <- FmeasureMean
+  outputMetric$FmeasureUB <- FmeasureMean + FmeasureSD
   
   outputMetric <- as.data.frame(outputMetric)
   outputMetric

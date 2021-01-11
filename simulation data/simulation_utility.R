@@ -92,66 +92,65 @@ SLIM_fun <- function(net, gamma = 0.25, m = 8, K = 3){
 }
 
 #### Multiple adjacency spectral embedding (MASE)
-MASE_fun <- function(net_list, di = 5, K = di, d_method = "SLIM", c_method = "kmeans",
-                     gamma = 0.25, m = 8){
-  # Do dimensional reduction
+MASE_fun <- function(net_list, di = 5, K = di, gamma = 0.25, m = 8){
   num_net <- length(net_list)
-  if (d_method == "SCORE"){
-    U <- matrix(NA, nrow = nrow(net_list[[1]]), ncol = num_net * (di - 1))
-    for (n_iter in 1:num_net){
-      net <- net_list[[n_iter]]
-      net <- abs(round(net, 2))
-      net[net > 0] <- 1
-      # make net work symmetry
-      net <- (net + t(net)) / 2
-      net <- as(net, "sparseMatrix")
-      # get the ratio matrix
-      eig_net <- RSpectra::eigs_sym(net, k = K, which = "LM")$vectors
-      eig_ratio <- matrix(eig_net[, 1], nrow = nrow(eig_net), ncol = K - 1)
-      eig_ratio <- eig_net[, 2:K] / eig_ratio
-      U[, ((di - 1) * (n_iter - 1) + 1):((di - 1) * n_iter)] <- eig_ratio
-    }
-  } else if (d_method == "SLIM"){
-    U <- matrix(NA, nrow = nrow(net_list[[1]]), ncol = num_net * di)
-    for (n_iter in 1:num_net){
-      net <- net_list[[n_iter]]
-      net <- abs(net)
-      # Calculate the inverse Laplacian matrix
-      D <- rowSums(net)
-      DinvA <- net / D
-      W_hat <- 0
-      alpha <- exp(-gamma)
-      tmp_c <- alpha
-      tmp_m <- DinvA
-      for (i in 1:m){
-        W_hat <- W_hat + tmp_c * tmp_m
-        tmp_c <- tmp_c * tmp_c
-        tmp_m <- tmp_m %*% tmp_m
-      }
-      
-      # Make it symmetry
-      M_hat <- (W_hat + t(W_hat)) / 2
-      
-      # Spectral decomposition
-      M_eig <- RSpectra::eigs_sym(M_hat, k = K, which = "LM")
-      X_hat <- M_eig$vectors
-      U[, (di * (n_iter - 1) + 1):(di * n_iter)] <- X_hat
-    }
+  res <- list()
+  # Do dimensional reduction SCORE
+  U <- matrix(NA, nrow = nrow(net_list[[1]]), ncol = num_net * (di - 1))
+  for (n_iter in 1:num_net){
+    net <- net_list[[n_iter]]
+    net <- abs(round(net, 2))
+    net[net > 0] <- 1
+    # make net work symmetry
+    net <- (net + t(net)) / 2
+    net <- as(net, "sparseMatrix")
+    # get the ratio matrix
+    eig_net <- RSpectra::eigs_sym(net, k = di, which = "LM")$vectors
+    eig_ratio <- matrix(eig_net[, 1], nrow = nrow(eig_net), ncol = di - 1)
+    eig_ratio <- eig_net[, 2:di] / eig_ratio
+    U[, ((di - 1) * (n_iter - 1) + 1):((di - 1) * n_iter)] <- eig_ratio
   }
   U_svd <- RSpectra::svds(U, k = K)
   V <- U_svd$u
+  res$SCORE_kmeans <- kmeans(V, centers = K, nstart = 10, iter.max = 50)$cluster
+  res$SCORE_APC <- APC_fun(V)
+  res$SCORE_LPA <- LPA_fun(V, K = 5)
   
-  if (c_method == "kmeans"){
-    res <- kmeans(V, centers = K, nstart = 10, iter.max = 50)$cluster
-  } else if (c_method == "AP"){
-    res <- APC_fun(V)
-  } else if (c_method == "LPA"){
-    res <- LPA_fun(V, K = 5)
+  # Do dimensional reduction SLIM
+  U <- matrix(NA, nrow = nrow(net_list[[1]]), ncol = num_net * di)
+  for (n_iter in 1:num_net){
+    net <- net_list[[n_iter]]
+    net <- abs(net)
+    # Calculate the inverse Laplacian matrix
+    D <- rowSums(net)
+    net[which(D == 0), ] <- 1/ncol(net)
+    D <- rowSums(net)
+    DinvA <- net / D
+    W_hat <- 0
+    alpha <- exp(-gamma)
+    tmp_c <- alpha
+    tmp_m <- DinvA
+    for (i in 1:m){
+      W_hat <- W_hat + tmp_c * tmp_m
+      tmp_c <- tmp_c * tmp_c
+      tmp_m <- tmp_m %*% tmp_m
+    }
+    # Make it symmetry
+    M_hat <- (W_hat + t(W_hat)) / 2
+    diag(M_hat) <- 0
+    # Spectral decomposition
+    M_eig <- RSpectra::eigs_sym(M_hat, k = di, which = "LM")
+    X_hat <- M_eig$vectors
+    U[, (di * (n_iter - 1) + 1):(di * n_iter)] <- X_hat
   }
+  U_svd <- RSpectra::svds(U, k = K)
+  V <- U_svd$u
+  res$SLIM_kmeans <- kmeans(V, centers = K, nstart = 10, iter.max = 50)$cluster
+  res$SLIM_APC <- APC_fun(V)
+  res$SLIM_LPA <- LPA_fun(V, K = 5)
   # return
   return(res)
 }
-
 
 ########################################################
 #### scTenifoldNet function modification. ##############

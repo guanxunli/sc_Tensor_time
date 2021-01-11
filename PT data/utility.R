@@ -1,61 +1,77 @@
-###########################################################
-######## Regression function ##############################
-###########################################################
+########################################################
+######### Community detection method ###################
+########################################################
 
-## define regression function
-my_regression <- function(X, Y){
-  n <- dim(X)[2]
-  df <- dim(X)[1] - n
-  # Do regress
-  beta_coef <- solve(crossprod(X), crossprod(X, Y))
-  
-  # t-test
-  lm_t_p <- matrix(NA, nrow = n - 1, ncol = dim(Y)[2])
-  index <- which(beta_coef[1, ] != 0)
-  Y_fit <- X %*% beta_coef[, index]
-  sigma_fit <- colSums((Y[, index] - Y_fit)^2) / df
-  
-  
-  for (i in 2:n){
-    sd_t <- sqrt(solve(crossprod(X))[i, i] * sigma_fit)
-    t_test <- beta_coef[i, index] / sd_t
-    t_test_p <- 2 * (1 - pt(abs(t_test), df = df))
-    lm_t_p[i - 1, index] <- t_test_p
+#### Affinity Propagation Clustering ####
+APC_fun <- function(net){
+  res_ap <- apcluster::apcluster(s = apcluster::negDistMat(), x = net)
+  com_det_ap <- res_ap@clusters
+  res <- rep(NA, nrow(net))
+  for (i in 1:length(com_det_ap)){
+    res[as.numeric(com_det_ap[[i]])] <- i
   }
-  
-  # # F-test
-  # X_F <- X[, -ncol(X), drop=FALSE]
-  # beta_coef_F <- solve(crossprod(X_F), crossprod(X_F, Y))
-  # Y_fit_F <- X_F %*% beta_coef_F[, index]
-  # sigma_fit_F <- colSums((Y[, index] - Y_fit_F)^2) / df
-  # F_test <- (sigma_fit_F - sigma_fit) * df / sigma_fit 
-  # F_test_p <- 1 - pf(F_test, df1 = 1, df2 = df)
-  # lm_F_p <- rep(NA, ncol = dim(Y)[2])
-  # lm_F_p[index] <- F_test_p
-  
-  res <- list()
-  res$coef <- beta_coef
-  res$lm_t_p <- lm_t_p
-  # res$lm_F_p <- lm_F_p
   return(res)
 }
 
-## Input network list
-regression_res <- function(network_list, method = "linear"){
-  n_list <- length(network_list)
-  mat_Y <- as.numeric(network_list[[1]])
-  for (i in 2:n_list){
-    mat_Y <- rbind(mat_Y, as.numeric(network_list[[i]]))
+#### SCORE method  ######################
+# net is the network
+# K is the number of communties
+# Tn is the threshold
+SCORE_fun <- function(net, K, Tn = NULL){
+  # make net work symmetry
+  net <- (net + t(net)) / 2
+  net <- as(net, "sparseMatrix")
+  # get the ratio matrix
+  eig_net <- RSpectra::eigs_sym(net, k = K, which = "LM")$vectors
+  eig_ratio <- matrix(eig_net[, 1], nrow = nrow(eig_net), ncol = K - 1)
+  eig_ratio <- eig_net[, 2:K] / eig_ratio
+  if (!is.null(Tn)){
+    eig_ratio[which(eig_ratio > Tn)] <- Tn
+    eig_ratio[which(eig_ratio < -Tn)] <- -Tn
   }
-  mat_Y <- as.matrix(mat_Y)
-  
-  if (method == "linear"){
-    X <- matrix(c(rep(1, 10), (1:10)), nrow = 10)
-  } else{
-    X <- matrix(c(rep(1, 10), (1:10), (1:10)^2), nrow = 10)
+  # do k-means
+  SCORE_kmeans <- kmeans(eig_ratio, centers = K, nstart = 10, iter.max = 50)
+  return(SCORE_kmeans$cluster)
+}
+
+
+#### Multiple adjacency spectral embedding (MASE)
+MASE_fun <- function(net_list, di = 10, K = 10, gamma = 0.25, m = 8){
+  # Do dimensional reduction SLIM
+  U <- matrix(NA, nrow = nrow(net_list[[1]]), ncol = num_net * di)
+  for (n_iter in 1:num_net){
+    net <- net_list[[n_iter]]
+    net <- abs(net)
+    # Calculate the inverse Laplacian matrix
+    D <- rowSums(net)
+    net[which(D == 0), ] <- 1/ncol(net)
+    D <- rowSums(net)
+    DinvA <- net / D
+    W_hat <- 0
+    alpha <- exp(-gamma)
+    tmp_c <- alpha
+    tmp_m <- DinvA
+    for (i in 1:m){
+      W_hat <- W_hat + tmp_c * tmp_m
+      tmp_c <- tmp_c * tmp_c
+      tmp_m <- tmp_m %*% tmp_m
+    }
+    # Make it symmetry
+    M_hat <- (W_hat + t(W_hat)) / 2
+    diag(M_hat) <- 0
+    # Spectral decomposition
+    M_eig <- RSpectra::eigs_sym(M_hat, k = di, which = "LM")
+    X_hat <- M_eig$vectors
+    U[, (di * (n_iter - 1) + 1):(di * n_iter)] <- X_hat
   }
-  lm_res <- my_regression(X, mat_Y)
-  return(lm_res)
+  U_svd <- RSpectra::svds(U, k = K)
+  V <- U_svd$u
+  res_SLIM_APC <- APC_fun(V)
+  K <- length(unique(res_SLIM_APC))
+  res_SLIM_kmeans <- kmeans(V, centers = K, nstart = 10, iter.max = 50)$cluster
+
+  # return
+  return(res_SLIM_kmeans)
 }
 
 ########################################################
@@ -200,11 +216,7 @@ makeNetworks <- function(X, nNet = 10, nCells = 500, nComp = 3, scaleScores = TR
 scTeni_makeNet <- function(X, norm_method = "new", nc_nNet = 10, nc_nCells = 500, nc_nComp = 3, nc_symmetric = FALSE, nc_scaleScores = TRUE,
                            nc_q = 0.05, td_K = 3, td_maxIter = 1e3, td_maxError = 1e-5){
   
-  X <- scTenifoldNet::scQC(X, minLibSize = 1000, removeOutlierCells = TRUE, minPCT = 0.05, maxMTratio = 0.1)
-  
-  # Counts per million (CPM) normalization
   if (norm_method == "new"){
-    X <- new_Normalization(X)
     # Comparing gene ids.
     xNames <- rownames(X)
     nGenes <- length(xNames)
@@ -213,7 +225,6 @@ scTeni_makeNet <- function(X, norm_method = "new", nc_nNet = 10, nc_nCells = 500
     set.seed(1)
     xList <- makeNetworks(X = X, nCells = nc_nCells, nNet = nc_nNet, nComp = nc_nComp, scaleScores = nc_scaleScores, symmetric = nc_symmetric, q = (1-nc_q))
   } else{
-    X <- scTenifoldNet::cpmNormalization(X)
     # Comparing gene ids.
     xNames <- rownames(X)
     nGenes <- length(xNames)
@@ -225,11 +236,13 @@ scTeni_makeNet <- function(X, norm_method = "new", nc_nNet = 10, nc_nCells = 500
   oX <- list2network(xList)
   rownames(oX) <- xNames
   colnames(oX) <- xNames
-  set.seed(1)
-  tensorOut <- scTenifoldNet::tensorDecomposition(xList, K = td_K, maxIter = td_maxIter, maxError = td_maxError)
-  res <- list()
-  res$oX <- oX
-  res$td <- tensorOut
-  # Return
-  return(res)
+  if (td_K == 0){
+    return(oX)
+  } else{
+    set.seed(1)
+    tensorOut <- scTenifoldNet::tensorDecomposition(xList, K = td_K, maxIter = td_maxIter, maxError = td_maxError)
+    tx <- as.matrix(tensorOut$X)
+    # Return
+    return(tx)
+  }
 }

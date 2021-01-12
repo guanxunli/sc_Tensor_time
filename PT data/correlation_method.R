@@ -44,3 +44,54 @@ res$beta_mat <- beta_mat
 res$APC <- res_APC
 res$SCORE <- res_SCORE
 saveRDS(res, "res_cor.rds")
+
+#### check results.
+gene_list <- rownames(dta)
+res <- readRDS("results/correlation method/res_cor.rds")
+res_AP <- res$APC
+res_SCORE <- res$SCORE
+res_SLIM_AP <- res$SLIM_AP
+names(res_AP) <- gene_list
+names(res_SCORE) <- gene_list
+names(res_SLIM_AP) <- gene_list
+
+AP_list <- list()
+i <- 1
+tmp_community <- unique(res_AP)
+for (iter in 1:length(unique(res_AP))) {
+  tmp <- names(res_AP)[which(res_AP == tmp_community[iter])]
+  if (length(tmp) > 5){
+    AP_list[[i]] <- tmp
+    i <- i + 1
+  }
+}
+
+SCORE_list <- list()
+i <- 1
+tmp_community <- unique(res_SCORE)
+for (iter in 1:length(unique(res_SCORE))) {
+  tmp <- names(res_SCORE)[which(res_SCORE == tmp_community[iter])]
+  if (length(tmp) > 5){
+    SCORE_list[[i]] <- tmp
+    i <- i + 1
+  }
+}
+
+SLIM_AP_list <- list()
+i <- 1
+tmp_community <- unique(res_SLIM_AP)
+for (iter in 1:length(unique(res_SLIM_AP))) {
+  tmp <- names(res_SLIM_AP)[which(res_SLIM_AP == tmp_community[iter])]
+  if (length(tmp) > 5){
+    SLIM_AP_list[[i]] <- tmp
+    i <- i + 1
+  }
+}
+
+res <- list()
+res$AP <- AP_list
+res$SCORE <- SCORE_list
+res$SLIM_AP <- SLIM_AP_list
+saveRDS(res, "results/correlation method/res_community.rds")
+
+

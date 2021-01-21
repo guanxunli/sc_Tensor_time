@@ -6,20 +6,20 @@ dta <- readRDS("data/dta.rds")
 dta_sudotime <- read.csv("data/monocle_rank.csv")
 dta_sudotime <- dta_sudotime[order(dta_sudotime$CCAT_score), ]
 dta <- dta[, dta_sudotime$Barcode]
-dta <- scTenifoldNet::scQC(dta)
+dta <- scTenifoldNet::scQC(as.matrix(dta))
 dta <- new_Normalization(dta)
 
 dta_list <- list()
 for (i in 1:6){
-  dta_list[[i]] <- dta[, (400 * (i - 1) + 1):(400 * (i + 1))]
+  dta_list[[i]] <- as.matrix(dta[, (400 * (i - 1) + 1):(400 * (i + 1))])
 }
-dta_list[[7]] <- dta[, 2401:3120]
+dta_list[[7]] <- as.matrix(dta[, 2401:3120])
 
 ## make networks
 network_list <- list()
 for (i in 1:length(dta_list)){
   network_list[[i]] <- scTeni_makeNet(dta_list[[i]], norm_method = "new", nc_nNet = 10, nc_nCells = 500, nc_nComp = 5, nc_symmetric = FALSE, nc_scaleScores = TRUE,
-                                                  nc_q = 0.5, td_K = 3, td_maxIter = 1e3, td_maxError = 1e-5)
+                                                  nc_q = 1, td_K = 3, td_maxIter = 1e3, td_maxError = 1e-5)
 }
 
 # Getting beta mat
@@ -36,13 +36,76 @@ beta_coef <- solve(crossprod(X_mat), crossprod(X_mat, Y))
 beta_mat <- matrix(beta_coef[2, ], nrow = nrow(network_list[[1]]))
 res_AP <- APC_fun(beta_mat)
 
-res_SLIM <- MASE_fun(network_list, di = 10, K = 10, gamma = 0.25, m = 8)
+res_SLIM <- MASE_fun(network_list, di = 50, K = 50, gamma = 0.25, m = 8)
 res <- list()
 res$network <- network_list
-res$beta_mat <- beta_mat
 res$AP <- res_AP
 res$SLIM <- res_SLIM
-saveRDS(res, "res_PCnet400.rds")
+saveRDS(res, "res_PCnet.rds")
+
+#### check results.
+gene_list <- rownames(dta)
+res <- readRDS("results/PCnet method/res_PCnet.rds")
+res_AP <- res$AP
+res_SLIM_AP <- res$SLIM_AP
+names(res_AP) <- gene_list
+names(res_SLIM_AP) <- gene_list
+
+AP_list <- list()
+i <- 1
+tmp_community <- unique(res_AP)
+for (iter in 1:length(unique(res_AP))) {
+  tmp <- names(res_AP)[which(res_AP == tmp_community[iter])]
+  if (length(tmp) > 5){
+    AP_list[[i]] <- tmp
+    i <- i + 1
+  }
+}
+
+SLIM_AP_list <- list()
+i <- 1
+tmp_community <- unique(res_SLIM_AP)
+for (iter in 1:length(unique(res_SLIM_AP))) {
+  tmp <- names(res_SLIM_AP)[which(res_SLIM_AP == tmp_community[iter])]
+  if (length(tmp) > 5){
+    SLIM_AP_list[[i]] <- tmp
+    i <- i + 1
+  }
+}
+
+res <- list()
+res$AP <- AP_list
+res$SLIM_AP <- SLIM_AP_list
+saveRDS(res, "results/PCnet method/res_community.rds")
+
+#### Check community results
+res <- readRDS("results/PCnet method/res_community.rds")
+library(enrichR)
+library(igraph)
+
+score_function <- function(res_list, fdrThreshold = 0.05){
+  n <- length(res_list)
+  n_community <- 0
+  for (i in 1:length(res_list)){
+    gList <- res_list[[i]]
+    gList <- gList[!grepl('^mt-|^Rpl|^Rps',gList, ignore.case = TRUE)]
+    if (length(gList) == 0){
+      n_community <- n_community
+    } else{
+      E <- enrichr(gList, c('KEGG_2019_Mouse','Reactome_2016','WikiPathways_2019_Mouse'))
+      E <- do.call(rbind.data.frame, E)
+      E <- E[E$Adjusted.P.value < fdrThreshold,]
+      if(isTRUE(nrow(E) > 0)){
+        n_community <- n_community  + 1
+      }
+    }
+  }
+  return(n_community / n)
+}
+
+res_score <- lapply(res, score_function)
+res_score
+
 
 
 

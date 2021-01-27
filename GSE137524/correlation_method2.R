@@ -86,7 +86,7 @@ for (iter in 1:length(unique(res_APC))) {
     tmp <- names(res_APC)[index]
     t_tmp <- as.numeric(t_mat[index, index])
     t_tmp <- na.omit(t_tmp)
-    if (-is.null(t_tmp)){
+    if (is.null(t_tmp)==FALSE){
       if (min(t_tmp) < 0.05){
         AP_list[[i]] <- tmp
         i <- i + 1
@@ -104,7 +104,7 @@ for (iter in 1:length(unique(res_SCORE))) {
     tmp <- names(res_SCORE)[index]
     t_tmp <- as.numeric(t_mat[index, index])
     t_tmp <- na.omit(t_tmp)
-    if (-is.null(t_tmp)){
+    if (is.null(t_tmp) == FALSE){
       if (min(t_tmp) < 0.05){
         SCORE_list[[i]] <- tmp
         i <- i + 1
@@ -122,7 +122,7 @@ for (iter in 1:length(unique(res_SLIM_AP))) {
     tmp <- names(res_SLIM_AP)[index]
     t_tmp <- as.numeric(t_mat[index, index])
     t_tmp <- na.omit(t_tmp)
-    if (-is.null(t_tmp)){
+    if (is.null(t_tmp) == FALSE){
       if (min(t_tmp) < 0.05){
         SLIM_AP_list[[i]] <- tmp
         i <- i + 1
@@ -131,9 +131,9 @@ for (iter in 1:length(unique(res_SLIM_AP))) {
   }
 }
 
-res$APC <- AP_list
-res$SCORE <- SCORE_list
-res$SLIM_AP <- SLIM_AP_list
+res$APC_list <- AP_list
+res$SCORE_list <- SCORE_list
+res$SLIM_AP_list <- SLIM_AP_list
 saveRDS(res, "res_cor2.rds")
 
 ## check the final results.
@@ -161,9 +161,7 @@ score_function <- function(res_list, fdrThreshold = 0.05){
   return(n_community / n)
 }
 
-res_test <- list()
-res_test[[1]] <- res$APC
-res_test[[2]] <- res$SCORE
-res_test[[3]] <- res$SLIM_AP
-res$score <- lapply(res_test, score_function)
+res$APC_score <- score_function(res$APC_list)
+res$SCORE_score <- score_function(res$SCORE_list)
+res$SLIM_AP_socre <- score_function(res$SLIM_AP_list)
 saveRDS(res, "res_cor2.rds")

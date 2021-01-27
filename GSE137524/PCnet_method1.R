@@ -20,7 +20,7 @@ dta_list[[9]] <- as.matrix(dta[, 4001:4797])
 network_list <- list()
 for (i in 1:length(dta_list)){
   network_list[[i]] <- scTeni_makeNet(dta_list[[i]], norm_method = "new", nc_nNet = 10, nc_nCells = 500, nc_nComp = 5, nc_symmetric = FALSE, nc_scaleScores = TRUE,
-                                                  nc_q = 1, td_K = 3, td_maxIter = 1e3, td_maxError = 1e-5)
+                                      nc_q = 1, td_K = 3, td_maxIter = 1e3, td_maxError = 1e-5)
 }
 
 res <- list()
@@ -84,7 +84,7 @@ for (iter in 1:length(unique(res_APC))) {
     tmp <- names(res_APC)[index]
     t_tmp <- as.numeric(t_mat[index, index])
     t_tmp <- na.omit(t_tmp)
-    if (-is.null(t_tmp)){
+    if (is.null(t_tmp) == FALSE){
       if (min(t_tmp) < 0.05){
         AP_list[[i]] <- tmp
         i <- i + 1
@@ -102,7 +102,7 @@ for (iter in 1:length(unique(res_SLIM_AP))) {
     tmp <- names(res_SLIM_AP)[index]
     t_tmp <- as.numeric(t_mat[index, index])
     t_tmp <- na.omit(t_tmp)
-    if (-is.null(t_tmp)){
+    if (is.null(t_tmp) == FALSE){
       if (min(t_tmp) < 0.05){
         SLIM_AP_list[[i]] <- tmp
         i <- i + 1
@@ -111,37 +111,35 @@ for (iter in 1:length(unique(res_SLIM_AP))) {
   }
 }
 
-res$APC <- AP_list
-res$SLIM_AP <- SLIM_AP_list
+res$APC_list <- AP_list
+res$SLIM_AP_list <- SLIM_AP_list
 saveRDS(res, "res_PCnet1.rds")
 
-## check the final results.
-library(enrichR)
-library(igraph)
-
-score_function <- function(res_list, fdrThreshold = 0.05){
-  n <- length(res_list)
-  n_community <- 0
-  for (i in 1:length(res_list)){
-    gList <- res_list[[i]]
-    gList <- gList[!grepl('^mt-|^Rpl|^Rps',gList, ignore.case = TRUE)]
-    if (length(gList) == 0){
-      n_community <- n_community
-    } else{
-      E <- enrichr(gList, c('KEGG_2019_Mouse','Reactome_2016','WikiPathways_2019_Mouse'))
-      E <- do.call(rbind.data.frame, E)
-      E <- E[E$Adjusted.P.value < fdrThreshold,]
-      print(i)
-      if(isTRUE(nrow(E) > 0)){
-        n_community <- n_community  + 1
-      }
-    }
-  }
-  return(n_community / n)
-}
-
-res_test <- list()
-res_test[[1]] <- res$APC
-res_test[[2]] <- res$SLIM_AP
-res$score <- lapply(res_test, score_function)
-saveRDS(res, "res_PCnet1.rds")
+# ## check the final results.
+# library(enrichR)
+# library(igraph)
+# 
+# score_function <- function(res_list, fdrThreshold = 0.05){
+#   n <- length(res_list)
+#   n_community <- 0
+#   for (i in 1:length(res_list)){
+#     gList <- res_list[[i]]
+#     gList <- gList[!grepl('^mt-|^Rpl|^Rps',gList, ignore.case = TRUE)]
+#     if (length(gList) == 0){
+#       n_community <- n_community
+#     } else{
+#       E <- enrichr(gList, c('KEGG_2019_Mouse','Reactome_2016','WikiPathways_2019_Mouse'))
+#       E <- do.call(rbind.data.frame, E)
+#       E <- E[E$Adjusted.P.value < fdrThreshold,]
+#       print(i)
+#       if(isTRUE(nrow(E) > 0)){
+#         n_community <- n_community  + 1
+#       }
+#     }
+#   }
+#   return(n_community / n)
+# }
+# 
+# res$APC_score <- score_function(res$APC_list)
+# res$SLIM_AP_socre <- score_function(res$SLIM_AP_list)
+# saveRDS(res, "res_PCnet1.rds")

@@ -56,6 +56,7 @@ for (i in 2:ncol(X_mat)){
   lm_t_p[i - 1, index] <- t_test_p
 }
 t_mat <- matrix(lm_t_p, nrow = nGenes)
+diag(t_mat) <- 1
 
 res <- list()
 res$beta_mat <- beta_mat

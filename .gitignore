@@ -5,7 +5,6 @@
 original data/data
 normalization test/networks
 PT data/data
-GSE137524/data
 GSE137524/results
 simulation data/results
 

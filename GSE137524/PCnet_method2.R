@@ -57,6 +57,7 @@ for (i in 2:ncol(X_mat)){
   lm_t_p[i - 1, index] <- t_test_p
 }
 t_mat <- matrix(lm_t_p, nrow = nGenes)
+diag(t_mat) <- 1
 
 res <- list()
 res$beta_mat <- beta_mat
@@ -115,31 +116,32 @@ res$APC_list <- AP_list
 res$SLIM_AP_list <- SLIM_AP_list
 saveRDS(res, "res_PCnet2.rds")
 
-# ## check the final results.
-# library(enrichR)
-# library(igraph)
-# 
-# score_function <- function(res_list, fdrThreshold = 0.05){
-#   n <- length(res_list)
-#   n_community <- 0
-#   for (i in 1:length(res_list)){
-#     gList <- res_list[[i]]
-#     gList <- gList[!grepl('^mt-|^Rpl|^Rps',gList, ignore.case = TRUE)]
-#     if (length(gList) == 0){
-#       n_community <- n_community
-#     } else{
-#       E <- enrichr(gList, c('KEGG_2019_Mouse','Reactome_2016','WikiPathways_2019_Mouse'))
-#       E <- do.call(rbind.data.frame, E)
-#       E <- E[E$Adjusted.P.value < fdrThreshold,]
-#       print(i)
-#       if(isTRUE(nrow(E) > 0)){
-#         n_community <- n_community  + 1
-#       }
-#     }
-#   }
-#   return(n_community / n)
-# }
-# 
-# res$APC_score <- score_function(res$APC_list)
-# res$SLIM_AP_socre <- score_function(res$SLIM_AP_list)
-# saveRDS(res, "res_PCnet2.rds")
+## check the final results.
+library(enrichR)
+library(igraph)
+
+score_function <- function(res_list, fdrThreshold = 0.05){
+  n <- length(res_list)
+  n_community <- 0
+  for (i in 1:length(res_list)){
+    gList <- res_list[[i]]
+    gList <- gList[!grepl('^mt-|^Rpl|^Rps',gList, ignore.case = TRUE)]
+    if (length(gList) == 0){
+      n_community <- n_community
+    } else{
+      E <- enrichr(gList, c('KEGG_2019_Mouse','Reactome_2016','WikiPathways_2019_Mouse'))
+      E <- do.call(rbind.data.frame, E)
+      E <- E[E$Adjusted.P.value < fdrThreshold,]
+      print(i)
+      if(isTRUE(nrow(E) > 0)){
+        n_community <- n_community  + 1
+      }
+    }
+  }
+  return(n_community / n)
+}
+
+res <- readRDS("results/correlation/res_cor2.rds")
+res$APC_score <- score_function(res$APC_list)
+res$SLIM_AP_socre <- score_function(res$SLIM_AP_list)
+saveRDS(res, "res_PCnet2.rds")

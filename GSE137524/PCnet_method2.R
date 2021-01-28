@@ -59,7 +59,6 @@ for (i in 2:ncol(X_mat)){
 t_mat <- matrix(lm_t_p, nrow = nGenes)
 diag(t_mat) <- 1
 
-res <- list()
 res$beta_mat <- beta_mat
 res$t_mat <- t_mat
 saveRDS(res, "res_PCnet2.rds")

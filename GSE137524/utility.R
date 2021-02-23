@@ -185,62 +185,375 @@ pcNet <- function(X,
   return(A)
 }
 
-makeNetworks <- function(X, nNet = 10, nCells = 500, nComp = 3, scaleScores = TRUE, symmetric = FALSE, q = 0.95){
-  geneList <- rownames(X)
-  nGenes <- length(geneList)
-  nCol <- ncol(X)
-  if(nGenes > 0){
-    pbapply::pbsapply(seq_len(nNet), function(W){
-      Z <- sample(x = seq_len(nCol), size = nCells, replace = TRUE)
-      Z <- as.matrix(X[,Z])
-      Z <- Z[apply(Z,1,sum) > 0,]
-      if(nComp > 1 & nComp < nGenes){
-        Z <- pcNet(Z, nComp = nComp, scaleScores = scaleScores, symmetric = symmetric, q = q, verbose = FALSE)  
-      } else {
-        stop('nComp should be greater or equal than 2 and lower than the total number of genes')
-      }
-      O <- matrix(data = 0, nrow = nGenes, ncol = nGenes)
-      rownames(O) <- colnames(O) <- geneList
-      O[rownames(Z), colnames(Z)] <- as.matrix(Z)
-      O <- as(O, 'dgCMatrix')
-      return(O)
-    })  
-  } else {
-    stop('Gene names are required')
+
+as.tensor <- function(x,drop=FALSE){
+  stopifnot(is.array(x)||is.vector(x))
+  tnsr <- list()
+  if (is.vector(x)){
+    modes <- c(length(x))
+    num_modes <- 1L
+    tnsr$modes <- modes
+    tnsr$num_modes <- num_modes
+    tnsr$data <- x
+    #new("Tensor", num_modes, modes, data = x)
   }
+  else {
+    modes <- dim(x)
+    num_modes <- length(modes)
+    dim1s <- which(modes==1)
+    if (drop && (length(dim1s)>0)){
+      modes <- modes[-dim1s]
+      num_modes <- num_modes-length(dim1s)
+      tnsr$modes <- modes
+      tnsr$num_modes <- num_modes
+      tnsr$data <- array(x,dim=modes)
+      #new("list",num_modes,modes,data=array(x,dim=modes))
+    } else {
+      tnsr$modes <- modes
+      tnsr$num_modes <- num_modes
+      tnsr$data <- x
+    }
+  }
+  return(tnsr)
 }
 
-## make networks
-scTeni_makeNet <- function(X, norm_method = "new", nc_nNet = 10, nc_nCells = 500, nc_nComp = 3, nc_symmetric = FALSE, nc_scaleScores = TRUE,
-                           nc_q = 0.05, td_K = 3, td_maxIter = 1e3, td_maxError = 1e-5){
+tensorDecomposition <- function(xList, K = 5, maxError = 1e-5, maxIter = 1e3){
+  xNets <- length(xList)
+  nNet <- xNets
+  xGenes <- unique(unlist(lapply(xList, rownames)))
+  sGenes <- xGenes
+  nGenes <- length(sGenes) 
   
-  if (norm_method == "new"){
-    # Comparing gene ids.
-    xNames <- rownames(X)
-    nGenes <- length(xNames)
-    
-    # Construction of gene-regulatory networks based on principal component regression (pcNet) and random subsampling.
-    set.seed(1)
-    xList <- makeNetworks(X = X, nCells = nc_nCells, nNet = nc_nNet, nComp = nc_nComp, scaleScores = nc_scaleScores, symmetric = nc_symmetric, q = (1-nc_q))
-  } else{
-    # Comparing gene ids.
-    xNames <- rownames(X)
-    nGenes <- length(xNames)
-    
-    # Construction of gene-regulatory networks based on principal component regression (pcNet) and random subsampling.
-    set.seed(1)
-    xList <- scTenifoldNet::makeNetworks(X = X, nCells = nc_nCells, nNet = nc_nNet, nComp = nc_nComp, scaleScores = nc_scaleScores, symmetric = nc_symmetric, q = (1-nc_q))
+  tensorX <- array(data = 0, dim = c(nGenes,nGenes,1,nNet))
+  
+  for(i in seq_len(nNet)){
+    tempX <- matrix(0, nGenes, nGenes)
+    rownames(tempX) <- colnames(tempX) <- sGenes
+    temp <- as.matrix(xList[[i]])
+    tGenes <- sGenes[sGenes %in% rownames(temp)]
+    tempX[tGenes,tGenes] <- temp[tGenes,tGenes]
+    tensorX[,,,i] <- tempX
   }
-  oX <- list2network(xList)
-  rownames(oX) <- xNames
-  colnames(oX) <- xNames
-  if (td_K == 0){
-    return(oX)
-  } else{
-    set.seed(1)
-    tensorOut <- scTenifoldNet::tensorDecomposition(xList, K = td_K, maxIter = td_maxIter, maxError = td_maxError)
-    tx <- as.matrix(tensorOut$X)
-    # Return
-    return(tx)
+  
+  set.seed(1)
+  tensorX <- as.tensor(tensorX)
+  tensorX <- cpDecomposition(tnsr = tensorX, num_components = K, max_iter = maxIter, tol = maxError)
+  tensorOutput <- list()
+  for (i in seq_len(nNet)){
+    tensorOutput[[i]] <- round(tensorX$est$data[,,,i], 2)
   }
+  return(tensorOutput)
+}
+
+cpDecomposition <- function(tnsr, num_components=NULL,max_iter=25, tol=1e-5){
+  kronecker_list <- function(L){
+    isvecORmat <- function(x){is.matrix(x) || is.vector(x)}
+    stopifnot(all(unlist(lapply(L,isvecORmat))))
+    retmat <- L[[1]]
+    for(i in 2:length(L)){
+      retmat <- kronecker(retmat,L[[i]])
+    }
+    retmat
+  }
+  
+  
+  fnorm <- function(tnsr){
+    arr<-tnsr$data
+    sqrt(sum(arr*arr))
+  }
+  
+  rs_unfold <- function(tnsr,m=NULL){
+    if(is.null(m)) stop("mode m must be specified")
+    num_modes <- tnsr$num_modes
+    rs <- m
+    cs <- (1:num_modes)[-m]
+    unfold(tnsr,row_idx=rs,col_idx=cs)
+  }
+  
+  unfold <- function(tnsr,row_idx=NULL,col_idx=NULL){
+    #checks
+    rs <- row_idx
+    cs <- col_idx
+    if(is.null(rs)||is.null(cs)) stop("row and column indices must be specified")
+    num_modes <- tnsr$num_modes
+    if (length(rs) + length(cs) != num_modes) stop("incorrect number of indices")
+    if(any(rs<1) || any(rs>num_modes) || any(cs < 1) || any(cs>num_modes)) stop("illegal indices specified")
+    perm <- c(rs,cs)
+    if (any(sort(perm,decreasing=TRUE) != num_modes:1)) stop("missing and/or repeated indices")
+    modes <- tnsr$modes
+    mat <- tnsr$data
+    new_modes <- c(prod(modes[rs]),prod(modes[cs]))
+    #rearranges into a matrix
+    mat <- aperm(mat,perm)
+    dim(mat) <- new_modes
+    as.tensor(mat)
+  }
+  
+  hadamard_list <- function(L){
+    isvecORmat <- function(x){is.matrix(x) || is.vector(x)}
+    stopifnot(all(unlist(lapply(L,isvecORmat))))
+    retmat <- L[[1]]
+    for (i in 2:length(L)){
+      retmat <- retmat*L[[i]]
+    }
+    retmat
+  }
+  
+  khatri_rao_list <- function(L,reverse=FALSE){
+    stopifnot(all(unlist(lapply(L,is.matrix))))
+    ncols <- unlist(lapply(L,ncol))
+    stopifnot(length(unique(ncols))==1)
+    ncols <- ncols[1]
+    nrows <- unlist(lapply(L,nrow))
+    retmat <- matrix(0,nrow=prod(nrows),ncol=ncols)
+    if (reverse) L <- rev(L)
+    for(j in 1:ncols){
+      Lj <- lapply(L,function(x) x[,j])
+      retmat[,j] <- kronecker_list(Lj)
+    }
+    retmat
+  }
+  
+  superdiagonal_tensor <- function(num_modes,len,elements=1L){
+    modes <- rep(len,num_modes)
+    arr <- array(0, dim = modes)
+    if(length(elements)==1) elements <- rep(elements,len)
+    for (i in 1:len){
+      txt <- paste("arr[",paste(rep("i", num_modes),collapse=","),"] <- ", elements[i],sep="")
+      eval(parse(text=txt))
+    }
+    as.tensor(arr)
+  }
+  
+  ttl<-function(tnsr,list_mat,ms=NULL){
+    if(is.null(ms)||!is.vector(ms)) stop ("m modes must be specified as a vector")
+    if(length(ms)!=length(list_mat)) stop("m modes length does not match list_mat length")
+    num_mats <- length(list_mat)
+    if(length(unique(ms))!=num_mats) warning("consider pre-multiplying matrices for the same m for speed")
+    mat_nrows <- vector("list", num_mats)
+    mat_ncols <- vector("list", num_mats)
+    for(i in 1:num_mats){
+      mat <- list_mat[[i]]
+      m <- ms[i]
+      mat_dims <- dim(mat)
+      modes_in <- tnsr$modes
+      stopifnot(modes_in[m]==mat_dims[2])
+      modes_out <- modes_in
+      modes_out[m] <- mat_dims[1]
+      tnsr_m <- rs_unfold(tnsr,m=m)$data
+      retarr_m <- mat%*%tnsr_m
+      tnsr <- rs_fold(retarr_m,m=m,modes=modes_out)
+    }	
+    tnsr	
+  }
+  
+  rs_fold <- function(mat,m=NULL,modes=NULL){
+    if(is.null(m)) stop("mode m must be specified")
+    if(is.null(modes)) stop("Tensor modes must be specified")
+    num_modes <- length(modes)
+    rs <- m
+    cs <- (1:num_modes)[-m]
+    fold(mat,row_idx=rs,col_idx=cs,modes=modes)
+  }
+  
+  fold <- function(mat, row_idx = NULL, col_idx = NULL, modes=NULL){
+    #checks
+    rs <- row_idx
+    cs <- col_idx
+    if(is.null(rs)||is.null(cs)) stop("row space and col space indices must be specified")
+    if(is.null(modes)) stop("Tensor modes must be specified")
+    if(!is(mat,"list")){
+      if(!is.matrix(mat))  stop("mat must be of class 'matrix'")
+    }else{
+      stopifnot(mat$num_modes==2)
+      mat <- mat$data			
+    }
+    num_modes <- length(modes)
+    stopifnot(num_modes==length(rs)+length(cs))
+    mat_modes <- dim(mat)
+    if((mat_modes[1]!=prod(modes[rs])) || (mat_modes[2]!=prod(modes[cs]))) stop("matrix nrow/ncol does not match Tensor modes")
+    #rearranges into array
+    iperm <- match(1:num_modes,c(rs,cs))
+    as.tensor(aperm(array(mat,dim=c(modes[rs],modes[cs])),iperm))
+  }
+  
+  
+  if(is.null(num_components)) stop("num_components must be specified")
+  stopifnot(is(tnsr,"list"))
+  #if (.is_zero_tensor(tnsr)) stop("Zero tensor detected")
+  
+  #initialization via truncated hosvd
+  num_modes <- tnsr$num_modes
+  modes <- tnsr$modes
+  U_list <- vector("list",num_modes)
+  unfolded_mat <- vector("list",num_modes)
+  tnsr_norm <- fnorm(tnsr)
+  for(m in 1:num_modes){
+    unfolded_mat[[m]] <- rs_unfold(tnsr,m=m)$data
+    U_list[[m]] <- matrix(rnorm(modes[m]*num_components), nrow=modes[m], ncol=num_components)
+  }
+  est <- tnsr
+  curr_iter <- 1
+  converged <- FALSE
+  #set up convergence check
+  fnorm_resid <- rep(0, max_iter)
+  CHECK_CONV <- function(est){
+    curr_resid <- fnorm(as.tensor(est$data - tnsr$data))
+    fnorm_resid[curr_iter] <<- curr_resid
+    if (curr_iter==1) return(FALSE)
+    if (abs(curr_resid-fnorm_resid[curr_iter-1])/tnsr_norm < tol) return(TRUE)
+    else{ return(FALSE)}
+  }	
+  #progress bar
+  pb <- txtProgressBar(min=0,max=max_iter,style=3)
+  #main loop (until convergence or max_iter)
+  norm_vec <- function(vec){
+    norm(as.matrix(vec))
+  }
+  while((curr_iter < max_iter) && (!converged)){
+    setTxtProgressBar(pb,curr_iter)
+    for(m in 1:num_modes){
+      V <- hadamard_list(lapply(U_list[-m],function(x) {t(x)%*%x}))
+      V_inv <- solve(V)			
+      tmp <- unfolded_mat[[m]]%*%khatri_rao_list(U_list[-m],reverse=TRUE)%*%V_inv
+      lambdas <- apply(tmp,2,norm_vec)
+      U_list[[m]] <- sweep(tmp,2,lambdas,"/")	
+      Z <- superdiagonal_tensor(num_modes=num_modes,len=num_components,elements=lambdas)
+      est <- ttl(Z,U_list,ms=1:num_modes)
+    }
+    #checks convergence
+    if(CHECK_CONV(est)){
+      converged <- TRUE
+      setTxtProgressBar(pb,max_iter)
+    }else{
+      curr_iter <- curr_iter + 1
+    }
+  }
+  if(!converged){setTxtProgressBar(pb,max_iter)}
+  close(pb)
+  #end of main loop
+  #put together return list, and returns
+  fnorm_resid <- fnorm_resid[fnorm_resid!=0]
+  norm_percent<- (1-(tail(fnorm_resid,1)/tnsr_norm))*100
+  invisible(list(lambdas=lambdas, U=U_list, conv=converged, est=est, norm_percent=norm_percent, fnorm_resid = tail(fnorm_resid,1),all_resids=fnorm_resid))
+}
+
+
+# makeNetworks <- function(X, nNet = 10, nCells = 500, nComp = 3, scaleScores = TRUE, symmetric = FALSE, q = 0.95){
+#   geneList <- rownames(X)
+#   nGenes <- length(geneList)
+#   nCol <- ncol(X)
+#   if(nGenes > 0){
+#     pbapply::pbsapply(seq_len(nNet), function(W){
+#       Z <- sample(x = seq_len(nCol), size = nCells, replace = TRUE)
+#       Z <- as.matrix(X[,Z])
+#       Z <- Z[apply(Z,1,sum) > 0,]
+#       if(nComp > 1 & nComp < nGenes){
+#         Z <- pcNet(Z, nComp = nComp, scaleScores = scaleScores, symmetric = symmetric, q = q, verbose = FALSE)  
+#       } else {
+#         stop('nComp should be greater or equal than 2 and lower than the total number of genes')
+#       }
+#       O <- matrix(data = 0, nrow = nGenes, ncol = nGenes)
+#       rownames(O) <- colnames(O) <- geneList
+#       O[rownames(Z), colnames(Z)] <- as.matrix(Z)
+#       O <- as(O, 'dgCMatrix')
+#       return(O)
+#     })  
+#   } else {
+#     stop('Gene names are required')
+#   }
+# }
+
+# ## make networks
+# scTeni_makeNet <- function(X, norm_method = "new", nc_nNet = 10, nc_nCells = 500, nc_nComp = 3, nc_symmetric = FALSE, nc_scaleScores = TRUE,
+#                            nc_q = 0.05, td_K = 3, td_maxIter = 1e3, td_maxError = 1e-5){
+
+#   if (norm_method == "new"){
+#     # Comparing gene ids.
+#     xNames <- rownames(X)
+#     nGenes <- length(xNames)
+
+#     # Construction of gene-regulatory networks based on principal component regression (pcNet) and random subsampling.
+#     set.seed(1)
+#     xList <- makeNetworks(X = X, nCells = nc_nCells, nNet = nc_nNet, nComp = nc_nComp, scaleScores = nc_scaleScores, symmetric = nc_symmetric, q = (1-nc_q))
+#   } else{
+#     # Comparing gene ids.
+#     xNames <- rownames(X)
+#     nGenes <- length(xNames)
+
+#     # Construction of gene-regulatory networks based on principal component regression (pcNet) and random subsampling.
+#     set.seed(1)
+#     xList <- scTenifoldNet::makeNetworks(X = X, nCells = nc_nCells, nNet = nc_nNet, nComp = nc_nComp, scaleScores = nc_scaleScores, symmetric = nc_symmetric, q = (1-nc_q))
+#   }
+#   oX <- list2network(xList)
+#   rownames(oX) <- xNames
+#   colnames(oX) <- xNames
+#   if (td_K == 0){
+#     return(oX)
+#   } else{
+#     set.seed(1)
+#     tensorOut <- scTenifoldNet::tensorDecomposition(xList, K = td_K, maxIter = td_maxIter, maxError = td_maxError)
+#     tx <- as.matrix(tensorOut$X)
+#     # Return
+#     return(tx)
+#   }
+# }
+
+######################################################
+############ Other regression function ###############
+######################################################
+my_regression <- function(network_list, time_vec) {
+  ## Getting beta mat
+  n_net <- length(network_list)
+  X_mat <- cbind(1, time_vec)
+  tmp <- as.numeric(network_list[[1]])
+  nGenes <- nrow(network_list[[1]])
+  Y <- tmp
+  for (i in 2:n_net){
+    tmp <- as.numeric(network_list[[i]])
+    Y <- rbind(Y, tmp)
+  }
+  ## Do regress
+  beta_coef <- solve(crossprod(X_mat), crossprod(X_mat, Y))
+  beta_mat <- round(matrix(beta_coef[2, ], nrow = nGenes), 2)
+  diag(beta_mat) <- 1
+  beta_adj <- abs(beta_mat)
+  beta_adj[which(beta_adj > 0)] <- 1
+  
+  ## t-test
+  lm_t_p <- matrix(1, nrow = ncol(X_mat) - 1, ncol = dim(Y)[2])
+  df <- nrow(X_mat) - ncol(X_mat)
+  index <- setdiff(which(beta_coef[1, ] != 0), which(beta_coef[2, ] == 0))
+  Y_fit <- X_mat %*% beta_coef[, index]
+  sigma_fit <- colSums((Y[, index] - Y_fit)^2) / df
+  
+  for (i in 2:ncol(X_mat)){
+    sd_t <- sqrt(solve(crossprod(X_mat))[i, i] * sigma_fit)
+    t_test <- beta_coef[i, index] / sd_t
+    t_test_p <- 2 * (1 - pt(abs(t_test), df = df))
+    lm_t_p[i - 1, index] <- t_test_p
+  }
+  t_mat <- matrix(lm_t_p, nrow = nGenes)
+  
+  ## return results
+  res <- list()
+  res$beta_mat <- beta_mat
+  res$t_mat <- t_mat
+  res$beta_adj <- beta_adj
+  return(res)
+}
+
+UMAP_order <- function(dta){
+  dta_svd <- RSpectra::svds(dta, k = 50)
+  dta_pcscore <-  t(t(dta_svd$u) * dta_svd$d)
+  UMAP <- umap(dta_pcscore)
+  rownames(UMAP) <- rownames(dta)
+  ## GSEA
+  mDistance <- mahalanobis(UMAP, colMeans(UMAP), cov(UMAP))
+  BIOP <- gmtPathways('https://maayanlab.cloud/Enrichr/geneSetLibrary?mode=text&libraryName=BioPlanet_2019')
+  set.seed(1)
+  E <- fgseaMultilevel(BIOP, mDistance[!grepl('^RPL|^RPS|^RP[[:digit:]]|^MT-',names(mDistance))])
+  E <- E[order(E$pval, decreasing = FALSE),]
+  E$leadingEdge <- unlist(lapply(E$leadingEdge, function(X){paste0(X, collapse = ';')}))
+  return(E)
 }

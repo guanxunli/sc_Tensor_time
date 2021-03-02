@@ -66,6 +66,7 @@ scTenifoldTime <- function(dta_list, time_vec, nComp = 5, q = 0,
   mA <- scTenifoldNet::manifoldAlignment(tX , tY, d = ma_nDim)
   mA_X <- mA[1:nGenes, ]
   mA_Y <- mA[-(1:nGenes), ]
+  print("Finish manifold alignment part.")
   
   ## return order of gene
   gene_diff <- rowSums((mA_X - mA_Y)^2)

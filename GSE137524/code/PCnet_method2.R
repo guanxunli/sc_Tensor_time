@@ -69,7 +69,6 @@ time_vec <- rep(NA, 7)
 for (i in 1:6) {
   dta_list[[i]] <- as.matrix(dta[, (400 * (i - 1) + 1):(400 * (i + 1))])
   time_vec[i] <- mean(dta_sudotime2[colnames(dta_list[[i]]), 3])
-  print(paste0("Finish network ", i))
 }
 dta_list[[7]] <- as.matrix(dta[, 2401:n_cell])
 time_vec[7] <- mean(dta_sudotime2[colnames(dta_list[[7]]), 3])

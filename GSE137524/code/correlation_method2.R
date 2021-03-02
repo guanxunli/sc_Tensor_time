@@ -41,7 +41,7 @@ for (i in seq_len(length(dta_list))) {
   network_list[[i]] <- round(network_list[[i]], 2)
   print(paste0("Finish network", i))
 }
-network_tensor <- tensorDecomposition(network_list, K = 10, maxIter = 10000, maxError = 1e-5)
+network_tensor <- tensorDecomposition(network_list, K = 5, maxIter = 10000, maxError = 1e-5)
 res_regression <- my_regression(network_list = network_tensor, time_vec = time_vec)
 beta_mat <- res_regression$beta_mat
 rownames(beta_mat) <- rownames(dta)

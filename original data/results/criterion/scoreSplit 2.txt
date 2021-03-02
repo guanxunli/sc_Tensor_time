@@ -1,0 +1,17 @@
+"E" "Method" "n_gene"
+"1" 0 "score Split" 18
+"2" 0 "score Split" 67
+"3" 0 "score Split" 14
+"4" 0 "score Split" 12
+"5" 39 "score Split" 296
+"6" 0 "score Split" 12
+"7" 0 "score Split" 23
+"8" 2 "score Split" 14
+"9" 0 "score Split" 14
+"10" 0 "score Split" 16
+"11" 0 "score Split" 21
+"12" 0 "score Split" 12
+"13" 8 "score Split" 170
+"14" 0 "score Split" 17
+"15" 0 "score Split" 90
+"16" 1 "score Split" 11

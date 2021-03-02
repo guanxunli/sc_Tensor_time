@@ -1,0 +1,297 @@
+"average distance" "p-value" "number of gene"
+"Cardiac muscle contraction" 1.13756759183002 0 30
+"DNA replication" 0.540898064200443 0 30
+"Endocytosis" 1.48606324475158 0 107
+"Mismatch repair" 0.721374652405936 0 18
+"Parkinson disease" 1.27475408106218 0 93
+"Ribosome" 1.45409031466167 0 123
+"Spliceosome" 1.36308114297691 0 100
+"Oxidative phosphorylation" 1.47190393390713 1e-04 93
+"Mucin type O-glycan biosynthesis" 0.81390597757247 4e-04 14
+"Axon guidance" 1.38584409253949 6e-04 50
+"Ubiquitin mediated proteolysis" 1.51089366937893 6e-04 77
+"RNA transport" 1.56688781923664 7e-04 93
+"Bacterial invasion of epithelial cells" 1.25907851491731 9e-04 34
+"Alzheimer disease" 1.64544166504603 0.0014 112
+"Wnt signaling pathway" 1.41647618387019 0.0014 47
+"mRNA surveillance pathway" 1.40857672705351 0.0022 46
+"Valine, leucine and isoleucine degradation" 1.34466780768691 0.0023 34
+"One carbon pool by folate" 0.68462135348945 0.0028 9
+"Chemokine signaling pathway" 1.48414492895139 0.0035 49
+"Synaptic vesicle cycle" 1.2563276719771 0.0041 26
+"RNA degradation" 1.4611574514566 0.0046 46
+"RNA polymerase" 1.02250282025245 0.0046 15
+"Focal adhesion" 1.57364277386219 0.0058 67
+"Base excision repair" 1.14707220965327 0.006 18
+"Leukocyte transendothelial migration" 1.44998966097612 0.0067 40
+"Measles" 1.51712166582336 0.0072 46
+"Retrograde endocannabinoid signaling" 1.55830544943303 0.0086 56
+"Autophagy" 1.59089648424634 0.0094 64
+"VEGF signaling pathway" 1.30925701948647 0.0101 23
+"Prolactin signaling pathway" 1.30868011376377 0.0107 23
+"Adherens junction" 1.49203186375453 0.0127 38
+"ABC transporters" 0.937822519686651 0.0138 10
+"Toxoplasmosis" 1.51862277581132 0.0162 40
+"Phosphonate and phosphinate metabolism" 0.332890792340734 0.0167 4
+"T cell receptor signaling pathway" 1.45612033762513 0.017 32
+"Huntington disease" 1.74457655298632 0.0179 123
+"Salmonella infection" 1.51972331299461 0.0196 38
+"Toll-like receptor signaling pathway" 1.37573431200482 0.0198 23
+"Steroid biosynthesis" 1.03279622084526 0.0201 11
+"mTOR signaling pathway" 1.63006454058537 0.0207 58
+"Glycosphingolipid biosynthesis" 1.34491920084684 0.0223 21
+"Fc epsilon RI signaling pathway" 1.26975529153325 0.0243 17
+"Pertussis" 1.43398880751482 0.0246 27
+"Porphyrin and chlorophyll metabolism" 1.12055222364302 0.0254 12
+"Progesterone-mediated oocyte maturation" 1.59347505911219 0.0259 46
+"Ribosome biogenesis in eukaryotes" 1.53184615297071 0.0259 37
+"JAK-STAT signaling pathway" 1.51844270205577 0.026 34
+"Lysosome" 1.65312906833566 0.0313 57
+"Notch signaling pathway" 1.26460164459675 0.0338 15
+"Osteoclast differentiation" 1.53098768565241 0.0344 32
+"Thiamine metabolism" 0.607055224270387 0.0358 5
+"B cell receptor signaling pathway" 1.42217836490105 0.0372 22
+"NF-kappa B signaling pathway" 1.4347891343335 0.0375 23
+"Thyroid hormone signaling pathway" 1.5946401861771 0.0389 39
+"Vitamin digestion and absorption" 0.256009599197467 0.0405 3
+"Acute myeloid leukemia" 1.48023793697008 0.0441 25
+"Primary immunodeficiency" 0.504053389645955 0.0486 4
+"Arrhythmogenic right ventricular cardiomyopathy (ARVC)" 1.39633018692659 0.0518 18
+"Serotonergic synapse" 1.58441609371458 0.0607 32
+"Glycolysis / Gluconeogenesis" 1.63440806465831 0.0614 37
+"Fatty acid degradation" 1.53374728412148 0.0623 25
+"Bile secretion" 1.50066518551602 0.063 22
+"Renal cell carcinoma" 1.60475746666824 0.0633 34
+"IL-17 signaling pathway" 1.53820206007276 0.0643 26
+"MAPK signaling pathway" 1.7739159116243 0.0648 89
+"Fanconi anemia pathway" 1.41105370791957 0.0683 17
+"Sphingolipid signaling pathway" 1.69017811502781 0.0686 50
+"Other types of O-glycan biosynthesis" 1.13013260926597 0.0698 9
+"Other glycan degradation" 1.14494174753338 0.0699 9
+"N-Glycan biosynthesis" 1.63215786480869 0.0707 36
+"Rap1 signaling pathway" 1.73294998259933 0.0746 61
+"Taste transduction" 0.371202063561867 0.0748 3
+"Butanoate metabolism" 1.36123845546791 0.0749 14
+"Mannose type O-glycan biosynthesis" 0.772119271675775 0.0756 5
+"Hedgehog signaling pathway" 1.40876584913335 0.0777 16
+"HIF-1 signaling pathway" 1.69362769872818 0.08 47
+"Platelet activation" 1.67079377064534 0.0813 40
+"Fc gamma R-mediated phagocytosis" 1.67632489269558 0.0859 40
+"Cell cycle" 1.77969348275995 0.0889 79
+"Steroid hormone biosynthesis" 1.33427616561348 0.0909 12
+"Regulation of lipolysis in adipocytes" 1.31926590846481 0.1013 11
+"Human immunodeficiency virus 1 infection" 1.8105357835243 0.1048 90
+"Fatty acid elongation" 1.43674416659911 0.1146 14
+"Oxytocin signaling pathway" 1.73223676815413 0.1177 45
+"Amoebiasis" 1.57914898021071 0.1182 21
+"Non-alcoholic fatty liver disease (NAFLD)" 1.82641535135479 0.1182 98
+"Glycerolipid metabolism" 1.57660693097666 0.1198 21
+"Insulin signaling pathway" 1.75995740556375 0.1225 53
+"Nicotinate and nicotinamide metabolism" 1.03796818446408 0.1225 6
+"Propanoate metabolism" 1.55025768268133 0.124 19
+"Glutamatergic synapse" 1.62959440305478 0.1245 26
+"Protein processing in endoplasmic reticulum" 1.8428044503748 0.1252 109
+"Gastric acid secretion" 1.61771273659331 0.1321 23
+"TNF signaling pathway" 1.72255659445691 0.1385 38
+"Olfactory transduction" 1.35572228206758 0.1398 10
+"Leishmaniasis" 1.54228403303921 0.1408 17
+"Influenza A" 1.79015916158184 0.1433 58
+"TGF-beta signaling pathway" 1.70879126984223 0.1471 34
+"C-type lectin receptor signaling pathway" 1.71419726844926 0.1482 35
+"Thermogenesis" 1.86415824790309 0.1491 126
+"Parathyroid hormone synthesis, secretion and action" 1.74348745495604 0.1531 41
+"Pentose and glucuronate interconversions" 1.42111043006623 0.1568 11
+"Non-homologous end-joining" 1.00457697097893 0.1595 5
+"Carbohydrate digestion and absorption" 1.42706397780805 0.1603 11
+"ErbB signaling pathway" 1.71198341275496 0.1627 32
+"Ubiquinone and other terpenoid-quinone biosynthesis" 1.14095002895615 0.1642 6
+"Tuberculosis" 1.80159172441705 0.1664 57
+"cAMP signaling pathway" 1.79198781631335 0.169 55
+"GABAergic synapse" 1.58308696627277 0.1738 17
+"Colorectal cancer" 1.772611799895 0.1759 43
+"Long-term potentiation" 1.69934444486209 0.1775 29
+"Cytosolic DNA-sensing pathway" 1.57646664816062 0.1791 16
+"Th17 cell differentiation" 1.68187155514294 0.1793 25
+"Inositol phosphate metabolism" 1.6193521507374 0.1803 19
+"Phosphatidylinositol signaling system" 1.71319408769696 0.1832 28
+"Sulfur relay system" 0.886317193951773 0.1874 4
+"Endometrial cancer" 1.73003365937961 0.1888 30
+"Aldosterone-regulated sodium reabsorption" 1.47040553488764 0.1893 11
+"Basal transcription factors" 1.60846932812443 0.1915 17
+"Pentose phosphate pathway" 1.59502123717605 0.1934 16
+"Morphine addiction" 1.53876808306112 0.1977 13
+"Lysine degradation" 1.72432168541631 0.1995 29
+"Peroxisome" 1.77025406721892 0.2013 37
+"PPAR signaling pathway" 1.69452265373438 0.2056 24
+"Endocrine and other factor-regulated calcium reabsorption" 1.63030790936893 0.2069 18
+"Chronic myeloid leukemia" 1.75600823133755 0.2093 34
+"Type II diabetes mellitus" 1.54401451511452 0.2102 13
+"Cysteine and methionine metabolism" 1.70289100608482 0.2119 24
+"Glyoxylate and dicarboxylate metabolism" 1.70588002285834 0.2129 23
+"SNARE interactions in vesicular transport" 1.66582294704864 0.2148 20
+"Arginine biosynthesis" 1.43966644563893 0.2241 9
+"Proteasome" 1.80177778602616 0.2254 41
+"Tryptophan metabolism" 1.61734645986528 0.2257 15
+"Long-term depression" 1.71051905413736 0.2266 23
+"Neurotrophin signaling pathway" 1.82279654974215 0.2267 50
+"Retinol metabolism" 1.52305240206617 0.2275 11
+"Salivary secretion" 1.72679007984587 0.2417 23
+"Th1 and Th2 cell differentiation" 1.68924026177668 0.2436 19
+"Melanogenesis" 1.77088263731587 0.2452 30
+"Longevity regulating pathway" 1.8156581050531 0.2469 43
+"Protein export" 1.70753135925828 0.2558 20
+"Collecting duct acid secretion" 1.59421150325711 0.2586 12
+"Cholinergic synapse" 1.77792275165674 0.2658 28
+"Pantothenate and CoA biosynthesis" 1.23545176038608 0.2792 5
+"Biosynthesis of unsaturated fatty acids" 1.64853846218543 0.2817 14
+"Mineral absorption" 1.71770673103765 0.2848 18
+"Aminoacyl-tRNA biosynthesis" 1.73272637695641 0.2855 20
+"GnRH signaling pathway" 1.81006126909492 0.2872 34
+"AGE-RAGE signaling pathway in diabetic complications" 1.79906272894496 0.2893 31
+"Natural killer cell mediated cytotoxicity" 1.73015808850545 0.2944 19
+"Choline metabolism in cancer" 1.82136483244813 0.2967 36
+"Apelin signaling pathway" 1.86268796766348 0.3034 48
+"Mitophagy" 1.81976827516526 0.3086 31
+"Circadian entrainment" 1.7544881637179 0.3101 21
+"Autoimmune thyroid disease" 1.28036962618529 0.3105 5
+"Starch and sucrose metabolism" 1.58920322040136 0.3105 10
+"Graft-versus-host disease" 1.28036962618529 0.313 5
+"Nitrogen metabolism" 1.37600303379213 0.3153 6
+"Allograft rejection" 1.28036962618529 0.3156 5
+"Cell adhesion molecules (CAMs)" 1.81931766453849 0.3196 29
+"Ras signaling pathway" 1.8909967255809 0.3199 62
+"Pyruvate metabolism" 1.8072205093689 0.3314 24
+"Proteoglycans in cancer" 1.90206769638963 0.3373 69
+"Synthesis and degradation of ketone bodies" 1.50083736505845 0.3424 7
+"Dilated cardiomyopathy (DCM)" 1.72290436415704 0.343 15
+"Folate biosynthesis" 1.68001706538863 0.3457 12
+"Apoptosis" 1.90601615922869 0.3473 66
+"Rheumatoid arthritis" 1.77415101343472 0.3476 19
+"RIG-I-like receptor signaling pathway" 1.78110300541234 0.3487 20
+"Ether lipid metabolism" 1.77090014265866 0.3522 19
+"Epstein-Barr virus infection" 1.92066935591837 0.3556 81
+"Signaling pathways regulating pluripotency of stem cells" 1.87829140511472 0.3605 41
+"Kaposi sarcoma-associated herpesvirus infection" 1.91546799884326 0.3621 68
+"Nucleotide excision repair" 1.83240149259689 0.3662 25
+"Regulation of actin cytoskeleton" 1.9232581216075 0.3667 76
+"Inflammatory bowel disease (IBD)" 1.59051928218946 0.3722 8
+"Hepatitis C" 1.91074327715159 0.373 64
+"Pyrimidine metabolism" 1.84530817943517 0.3788 27
+"Vitamin B6 metabolism" 1.00858200665266 0.3823 3
+"Amyotrophic lateral sclerosis (ALS)" 1.82312932637093 0.3826 22
+"Ovarian steroidogenesis" 1.60213627340272 0.3829 8
+"Estrogen signaling pathway" 1.90348481899457 0.3891 47
+"beta-Alanine metabolism" 1.75201221653013 0.4029 13
+"Cholesterol metabolism" 1.78727074861899 0.4038 16
+"Hippo signaling pathway" 1.92469251262229 0.4102 57
+"Sphingolipid metabolism" 1.82777417895632 0.4118 20
+"Breast cancer" 1.91667694076453 0.4143 46
+"alpha-Linolenic acid metabolism" 1.64305324390295 0.417 8
+"Histidine metabolism" 1.64620810794505 0.4216 8
+"Melanoma" 1.87252072030974 0.4223 26
+"Thyroid cancer" 1.87434555607211 0.4302 24
+"Hepatocellular carcinoma" 1.94289690928962 0.4317 67
+"Oocyte meiosis" 1.93670739213196 0.4383 59
+"Amino sugar and nucleotide sugar metabolism" 1.89760197851767 0.4398 31
+"Intestinal immune network for IgA production" 1.11229995234127 0.4399 3
+"Non-small cell lung cancer" 1.89180989959316 0.4437 28
+"Citrate cycle (TCA cycle)" 1.89078752855727 0.4477 27
+"Relaxin signaling pathway" 1.92306921357658 0.4491 39
+"Cocaine addiction" 1.83784546643515 0.4554 16
+"Phospholipase D signaling pathway" 1.9300587213717 0.4626 42
+"Glycerophospholipid metabolism" 1.93798240088217 0.4717 39
+"Neuroactive ligand-receptor interaction" 1.79909911632699 0.4721 12
+"Renin secretion" 1.89875200735041 0.4767 25
+"Glycosaminoglycan biosynthesis" 1.78215924482861 0.4778 11
+"Tight junction" 1.96883402023634 0.48 76
+"Prostate cancer" 1.94906703978412 0.4802 47
+"Homologous recombination" 1.90373383889255 0.4893 23
+"Ascorbate and aldarate metabolism" 1.6469418272451 0.497 6
+"Adrenergic signaling in cardiomyocytes" 1.95709613195453 0.5031 45
+"Thyroid hormone synthesis" 1.91598777842382 0.5044 24
+"Chagas disease (American trypanosomiasis)" 1.94485884683196 0.5049 33
+"NOD-like receptor signaling pathway" 1.96577887981079 0.5092 55
+"Inflammatory mediator regulation of TRP channels" 1.94174784351018 0.5237 29
+"Herpes simplex virus 1 infection" 1.98237917351604 0.5315 62
+"Phagosome" 1.97849977706508 0.532 54
+"Gastric cancer" 1.97514599741223 0.5369 52
+"Hematopoietic cell lineage" 1.87995593869424 0.5399 13
+"Viral myocarditis" 1.92119065073943 0.5503 18
+"Circadian rhythm" 1.89110464189186 0.5511 13
+"cGMP-PKG signaling pathway" 1.99022217022968 0.5559 57
+"Taurine and hypotaurine metabolism" 1.37173831459386 0.5562 3
+"Hypertrophic cardiomyopathy (HCM)" 1.91854475847695 0.5619 16
+"Alanine, aspartate and glutamate metabolism" 1.9086186925739 0.5641 14
+"Glioma" 1.9674388569285 0.5675 28
+"Insulin secretion" 1.94714339596935 0.5726 19
+"Sulfur metabolism" 1.82470595929646 0.5746 8
+"Human papillomavirus infection" 2.00804246472937 0.5895 109
+"Adipocytokine signaling pathway" 1.97853562145801 0.5919 26
+"Dopaminergic synapse" 2.0060630567382 0.5932 52
+"Malaria" 1.82277142798558 0.5965 7
+"Metabolism of xenobiotics by cytochrome P450" 1.97564733289706 0.5968 21
+"Proximal tubule bicarbonate reclamation" 1.909112386891 0.5978 11
+"Central carbon metabolism in cancer" 1.99385758115093 0.6017 31
+"Phototransduction" 1.73246931084256 0.6045 5
+"Hepatitis B" 2.00592575960763 0.6057 63
+"Protein digestion and absorption" 1.92280316147286 0.606 11
+"Fatty acid biosynthesis" 1.65106621576236 0.6078 4
+"Terpenoid backbone biosynthesis" 1.98048016126184 0.6109 18
+"Galactose metabolism" 1.98438966465614 0.6388 16
+"African trypanosomiasis" 1.80272426694672 0.6469 5
+"Glycosaminoglycan degradation" 1.82936165052332 0.6627 5
+"Ferroptosis" 2.03284365792739 0.6703 27
+"Antigen processing and presentation" 2.03538417914919 0.6712 27
+"Pathways in cancer" 2.03197352923742 0.6756 180
+"Purine metabolism" 2.04245772673403 0.6756 49
+"AMPK signaling pathway" 2.0480040199721 0.6868 54
+"Insulin resistance" 2.04794221638535 0.6889 48
+"Type I diabetes mellitus" 1.92174706350097 0.6893 6
+"Tyrosine metabolism" 2.01366969961412 0.6967 10
+"Cellular senescence" 2.05203721838719 0.7005 77
+"Pancreatic cancer" 2.05955605342091 0.7146 38
+"Gap junction" 2.07535854303944 0.7244 27
+"Chemical carcinogenesis" 2.07257143543945 0.7324 23
+"Vasopressin-regulated water reabsorption" 2.08304980490569 0.738 21
+"Basal cell carcinoma" 2.10293865882417 0.7575 14
+"ECM-receptor interaction" 2.07534766538762 0.7575 10
+"Human cytomegalovirus infection" 2.07244527159542 0.7595 91
+"Arginine and proline metabolism" 2.10014725204651 0.7604 21
+"Maturity onset diabetes of the young" 1.96233617623953 0.7646 4
+"Cytokine-cytokine receptor interaction" 2.10242643666862 0.7652 21
+"Fluid shear stress and atherosclerosis" 2.08905208321004 0.774 64
+"Pancreatic secretion" 2.11074705051505 0.7743 33
+"FoxO signaling pathway" 2.09150788775535 0.7773 59
+"Systemic lupus erythematosus" 2.14460981150793 0.8081 21
+"Vascular smooth muscle contraction" 2.13673645215922 0.8189 38
+"p53 signaling pathway" 2.14541897433513 0.8247 35
+"Fructose and mannose metabolism" 2.17887221599453 0.8271 19
+"Legionellosis" 2.15931158144138 0.8313 28
+"Amphetamine addiction" 2.20695603744965 0.8655 24
+"Complement and coagulation cascades" 2.23160313057399 0.8694 3
+"Bladder cancer" 2.21885779482095 0.8731 24
+"Small cell lung cancer" 2.21062896372209 0.901 38
+"Transcriptional misregulation in cancer" 2.18666658782445 0.9027 57
+"Phenylalanine metabolism" 2.42092264354177 0.9099 5
+"Prion diseases" 2.36765251782278 0.9192 11
+"Glucagon signaling pathway" 2.23700216603746 0.9215 42
+"Glycine, serine and threonine metabolism" 2.35566349507743 0.9282 16
+"Fat digestion and absorption" 2.39716539005951 0.9295 12
+"Linoleic acid metabolism" 2.42934863446069 0.9345 10
+"Human T-cell leukemia virus 1 infection" 2.18230417169451 0.9348 93
+"Renin-angiotensin system" 2.48912075434827 0.9356 7
+"PI3K-Akt signaling pathway" 2.17936151786049 0.9424 95
+"Riboflavin metabolism" 2.55943659789285 0.9454 5
+"Alcoholism" 2.25465734466845 0.9521 54
+"Selenocompound metabolism" 2.5977504478329 0.9604 7
+"Viral carcinogenesis" 2.21347607636532 0.9608 88
+"Calcium signaling pathway" 2.35824323284058 0.9707 34
+"Glycosylphosphatidylinositol (GPI)-anchor biosynthesis" 2.59824562061112 0.9726 10
+"Aldosterone synthesis and secretion" 2.41313844899219 0.9767 27
+"Necroptosis" 2.30268864526732 0.979 61
+"Arachidonic acid metabolism" 2.52174764298467 0.9803 18
+"MicroRNAs in cancer" 2.29892703505802 0.9835 67
+"Cortisol synthesis and secretion" 2.53109940598778 0.9844 20
+"Cushing syndrome" 2.37650486376861 0.9907 55
+"Glutathione metabolism" 2.4915019647446 0.991 32
+"Drug metabolism" 2.56798970091839 0.9984 40

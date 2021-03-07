@@ -20,15 +20,17 @@ rownames(dta_sudotime1) <- gsub(pattern = "[.]", replacement = "_", x = dta_sudo
 dta_sudotime1 <- dta_sudotime1[, -1]
 dta_sudotime1 <- dta_sudotime1[order(dta_sudotime1$O2), ]
 dta <- dta[, rownames(dta_sudotime1)]
+# dta <- scTenifoldNet::scQC(as.matrix(dta))
 dta <- scTenifoldNet::scQC(as.matrix(dta), minPCT = 0.25)
 dta <- new_Normalization(dta)
 n_cell <- ncol(dta)
 n_gene <- nrow(dta)
+res <- list()
 
 #### No trajectary used
 dta_list <- list()
 time_vec <- 1:9
-set.seed(2020)
+set.seed(1)
 for (i in 1:9) {
   sample_index <- sample(seq_len(n_cell), 1000, replace = TRUE)
   dta_list[[i]] <- as.matrix(dta[, sample_index])
@@ -41,26 +43,30 @@ for (i in seq_len(length(dta_list))) {
   network_list[[i]] <- round(network_list[[i]], 2)
   print(paste0("Finish network", i))
 }
-network_tensor <- tensorDecomposition(network_list, K = 10, maxIter = 10000, maxError = 1e-5)
+set.seed(1)
+network_tensor <- tensorDecomposition(network_list, K = 5, maxIter = 10000, maxError = 1e-5)
+res$network_tensor_notraj <- network_tensor
 res_regression <- my_regression(network_list = network_tensor, time_vec = time_vec)
 beta_mat <- res_regression$beta_mat
 rownames(beta_mat) <- rownames(dta)
+set.seed(1)
 E <- UMAP_order(dta = beta_mat)
-res_E <- list()
-res_E$no_traj <- E
+res$E <- list()
+res$E$no_traj <- E
 print("Finish no trajectary part.")
 
 #### Two basic method
 ## Do UMAP directly
+set.seed(1)
 E <- UMAP_order(dta = dta)
-res_E$UMAP_dir <- E
+res$E$UMAP_dir <- E
 ## One network
 dta_net <- round(cor(t(as.matrix(dta)), method = "spearman"), 2)
 rownames(dta_net) <- rownames(dta)
+set.seed(1)
 E <- UMAP_order(dta = dta_net)
-res_E$dta_net <- E
+res$E$dta_net <- E
 print("Finish two basic methods.")
-saveRDS(res_E, "results/res_E_cor1.rds")
 
 #### Now consider our own method
 dta_list <- list()
@@ -79,15 +85,14 @@ for (i in seq_len(length(dta_list))) {
   network_list[[i]] <- round(network_list[[i]], 2)
   print(paste0("Finish network ", i))
 }
-res <- list()
 res$network_list <- network_list
-network_tensor <- tensorDecomposition(network_list, K = 10, maxIter = 10000, maxError = 1e-5)
+set.seed(1)
+network_tensor <- tensorDecomposition(network_list, K = 5, maxIter = 10000, maxError = 1e-5)
 for (i in seq_len(length(network_tensor))) {
   diag(network_tensor[[i]]) <- 1
 }
 res$network_tensor <- network_tensor
 print("Finish tensor decomposition part.")
-saveRDS(res, "results/res_cor1.rds")
 
 #### Without tensor decomposition for UMAP tesing
 ## Getting beta
@@ -98,12 +103,11 @@ beta_adj <- res_regression$beta_adj
 remove(res_regression)
 rownames(beta_mat) <- rownames(dta)
 colnames(beta_mat) <- rownames(dta)
-res$beta_mat <- beta_mat
-res$t_mat <- t_mat
 
 ## UMAP for beta matrix
+set.seed(1)
 E <- UMAP_order(dta = beta_mat)
-res_E$beta_time <- E
+res$E$beta_time <- E
 
 # #### community detecyion
 # res_APC <- APC_fun(beta_mat)
@@ -178,14 +182,12 @@ beta_adj <- res_regression$beta_adj
 remove(res_regression)
 rownames(beta_mat) <- rownames(dta)
 colnames(beta_mat) <- rownames(dta)
-res$beta_mat_tensor <- beta_mat
-res$t_mat_tensor <- t_mat
-saveRDS(res, "results/res_cor1.rds")
 
 ## UMAP for beta matrix
+set.seed(1)
 E <- UMAP_order(dta = beta_mat)
-res_E$beta_time_tensor <- E
-saveRDS(res_E, "results/res_E_cor1.rds")
+res$E$beta_time_tensor <- E
+saveRDS(res, "results_7000/res_cor1.rds")
 
 # #### community detection
 # res_APC <- APC_fun(beta_mat)

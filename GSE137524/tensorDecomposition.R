@@ -116,6 +116,8 @@ tensorDecomposition_time <- function(xList, K = 5, maxError = 1e-5, maxIter = 1e
   
   ## return results
   tensorOutput <- list()
+  tensorOutput$lambdas <- tensorX$lambdas
+  tensorOutput$U <- tensorX$U
   tensorOutput$network0 <- network0
   tensorOutput$network1 <- network1
   return(tensorOutput)

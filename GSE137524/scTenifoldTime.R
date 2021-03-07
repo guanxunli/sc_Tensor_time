@@ -35,6 +35,7 @@ source("regression_fun.R")
 scTenifoldTime <- function(dta_list, time_vec, nComp = 5, q = 0,
                            K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05, nDecimal = 2,
                            ma_nDim = 3){
+  res <- list()
   n_net <- length(dta_list)
   nGenes <- nrow(dta_list[[1]])
   gene_name <- rownames(dta_list[[1]])
@@ -46,10 +47,13 @@ scTenifoldTime <- function(dta_list, time_vec, nComp = 5, q = 0,
     rownames(network_list[[i]]) <- colnames(network_list[[i]]) <- gene_name
     print(paste0("Finish network ", i))
   }
+  res$network_list <- network_list
   ## tensor decomposition
   set.seed(1)
   tensor_output <- tensorDecomposition_time(network_list, K = K, maxError = maxError, maxIter = maxIter, 
-                                            time_vec = time_vec, thres = thres, nDecimal = nDecimal)
+                                            time_vec = time_vec, thres = thres, nDecimal = nDecimal, 
+                                            scoreType = "pos", eps = 0)
+  res$tensor_output <- tensor_output
   print("Finish tensor decomposition part.")
   ## Split of tensor output
   tX <- as.matrix(tensor_output$network0)
@@ -64,6 +68,7 @@ scTenifoldTime <- function(dta_list, time_vec, nComp = 5, q = 0,
   ## Non-linear manifold alignment
   set.seed(1)
   mA <- scTenifoldNet::manifoldAlignment(tX , tY, d = ma_nDim)
+  res$mA <- mA
   mA_X <- mA[1:nGenes, ]
   mA_Y <- mA[-(1:nGenes), ]
   print("Finish manifold alignment part.")
@@ -72,5 +77,22 @@ scTenifoldTime <- function(dta_list, time_vec, nComp = 5, q = 0,
   gene_diff <- rowSums((mA_X - mA_Y)^2)
   names(gene_diff) <- gene_name
   gene_diff <- sort(gene_diff, decreasing = TRUE)
-  return(gene_diff)
+  res$gene_diff <- gene_diff
+  
+  library(fgsea)
+  BIOP <- gmtPathways('https://maayanlab.cloud/Enrichr/geneSetLibrary?mode=text&libraryName=BioPlanet_2019')
+  set.seed(1)
+  E <- fgseaMultilevel(BIOP, gene_diff[!grepl('^RPL|^RPS|^RP[[:digit:]]|^MT-',names(gene_diff))],
+                       scoreType = scoreType, eps = eps)
+  E <- E[order(E$pval, decreasing = FALSE),]
+  E$leadingEdge <- unlist(lapply(E$leadingEdge, function(X){paste0(X, collapse = ';')}))
+  index <- which(E$pathway == "EGFR1 pathway")
+  res_pathway <- matrix(NA, nrow = 1, ncol = 3)
+  tmp <- E[index, 1:3]
+  rownames(res_pathway) <- tmp[1, 1]
+  colnames(res_pathway) <- c("p-value", "p-adj", "position")
+  res_pathway[1,3] <- index
+  res_pathway[1,1:2] <- as.numeric(tmp[, 2:3])
+  res$pathway <- res_pathway
+  return(res)
 }

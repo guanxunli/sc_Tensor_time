@@ -66,7 +66,7 @@ dta_net <- round(dta_net, 2)
 rownames(dta_net) <- rownames(dta)
 set.seed(1)
 E <- UMAP_order(dta = dta_net)
-res_E$dta_net <- E
+res$E$dta_net <- E
 print("Finish two basic methods.")
 
 #### Now consider our own method

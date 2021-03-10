@@ -20,8 +20,8 @@ rownames(dta_sudotime1) <- gsub(pattern = "[.]", replacement = "_", x = dta_sudo
 dta_sudotime1 <- dta_sudotime1[, -1]
 dta_sudotime1 <- dta_sudotime1[order(dta_sudotime1$O2), ]
 dta <- dta[, rownames(dta_sudotime1)]
-# dta <- scTenifoldNet::scQC(as.matrix(dta))
-dta <- scTenifoldNet::scQC(as.matrix(dta), minPCT = 0.25)
+dta <- scTenifoldNet::scQC(as.matrix(dta))
+# dta <- scTenifoldNet::scQC(as.matrix(dta), minPCT = 0.25)
 dta <- new_Normalization(dta)
 n_cell <- ncol(dta)
 n_gene <- nrow(dta)
@@ -68,6 +68,7 @@ set.seed(1)
 E <- UMAP_order(dta = dta_net)
 res$E$dta_net <- E
 print("Finish two basic methods.")
+saveRDS(res, "results_10000/res_PCnet1.rds")
 
 #### Now consider our own method
 dta_list <- list()
@@ -188,7 +189,8 @@ colnames(beta_mat) <- rownames(dta)
 set.seed(1)
 E <- UMAP_order(dta = beta_mat)
 res$E$beta_time_tensor <- E
-saveRDS(res, "results_7000/res_PCnet1.rds")
+# saveRDS(res, "results_7000/res_PCnet1.rds")
+saveRDS(res, "results_10000/res_PCnet1.rds")
 
 # #### community detection
 # res_APC <- APC_fun(beta_mat)

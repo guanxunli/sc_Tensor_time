@@ -34,7 +34,7 @@ source("regression_fun.R")
 
 scTenifoldTime <- function(dta_list, time_vec, nComp = 5, q = 0,
                            K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05, nDecimal = 2,
-                           ma_nDim = 3){
+                           ma_nDim = 3, scoreType = "pos", eps = 0){
   res <- list()
   n_net <- length(dta_list)
   nGenes <- nrow(dta_list[[1]])
@@ -51,8 +51,7 @@ scTenifoldTime <- function(dta_list, time_vec, nComp = 5, q = 0,
   ## tensor decomposition
   set.seed(1)
   tensor_output <- tensorDecomposition_time(network_list, K = K, maxError = maxError, maxIter = maxIter, 
-                                            time_vec = time_vec, thres = thres, nDecimal = nDecimal, 
-                                            scoreType = "pos", eps = 0)
+                                            time_vec = time_vec, thres = thres, nDecimal = nDecimal)
   res$tensor_output <- tensor_output
   print("Finish tensor decomposition part.")
   ## Split of tensor output

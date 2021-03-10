@@ -21,8 +21,8 @@ rownames(dta_sudotime1) <- gsub(pattern = "[.]", replacement = "_", x = dta_sudo
 dta_sudotime1 <- dta_sudotime1[, -1]
 dta_sudotime1 <- dta_sudotime1[order(dta_sudotime1$O2), ]
 dta <- dta[, rownames(dta_sudotime1)]
-# dta <- scTenifoldNet::scQC(as.matrix(dta))
-dta <- scTenifoldNet::scQC(as.matrix(dta), minPCT = 0.25)
+dta <- scTenifoldNet::scQC(as.matrix(dta))
+# dta <- scTenifoldNet::scQC(as.matrix(dta), minPCT = 0.25)
 dta <- new_Normalization(dta)
 n_cell <- ncol(dta)
 n_gene <- nrow(dta)
@@ -41,4 +41,6 @@ set.seed(1)
 res <- scTenifoldTime(dta_list = dta_list, time_vec = time_vec, nComp = 5, q = 0,
                                   K = 5, maxIter = 10000, maxError = 1e-5, thres = 0.05, nDecimal = 2,
                                   ma_nDim = 3)
-saveRDS(res, "results_7000/pcnet_time1.rds")
+
+# saveRDS(res, "results_7000/pcnet_time1.rds")
+saveRDS(res, "results_10000/pcnet_time1.rds")

@@ -30,6 +30,6 @@ time_vec[5] <- mean(dta_sudotime[colnames(dta_list[[5]]), 1])
 
 #### correlation method
 res_cor <- scTenifoldTime_beta(dta_list, method = "cor", time_vec, nComp = 5, q = 0,
-                                K = 10, maxIter = 10000, maxError = 1e-5)
+                                K = 5, maxIter = 10000, maxError = 1e-5)
 
 saveRDS(res, "results/beta_cor.rds")

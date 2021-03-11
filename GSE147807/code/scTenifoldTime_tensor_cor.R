@@ -16,7 +16,6 @@ dta <- scTenifoldNet::scQC(as.matrix(dta),  maxMTratio = 0.5, minPCT = 0.25) # I
 dta <- new_Normalization(dta)
 n_cell <- ncol(dta)
 n_gene <- nrow(dta)
-res <- list()
 
 #### Now consider scTenifoldTime
 dta_list <- list()
@@ -28,8 +27,9 @@ for (i in 1:4) {
 dta_list[[5]] <- as.matrix(dta[, 1000:n_cell])
 time_vec[5] <- mean(dta_sudotime[colnames(dta_list[[5]]), 1])
 
-#### correlation method
-res <- scTenifoldTime_beta(dta_list, method = "cor", time_vec, nComp = 5, q = 0,
-                                K = 5, maxIter = 10000, maxError = 1e-5)
+set.seed(1)
+res <- scTenifoldTime_tensor(dta_list = dta_list, time_vec = time_vec, method = "cor", nComp = 5, q = 0,
+                             K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05, nDecimal = 2,
+                             ma_nDim = 3)
 
-saveRDS(res, "results/beta_cor.rds")
+saveRDS(res, "results/tensor_cor.rds")

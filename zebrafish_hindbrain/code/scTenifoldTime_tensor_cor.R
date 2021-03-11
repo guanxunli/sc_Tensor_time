@@ -63,4 +63,4 @@ res_large<- scTenifoldTime_tensor(dta_list = dta_list, time_vec = time_vec, meth
 res$res_large <- res_large
 rm(res_large)
 
-saveRDS(res, "results/beta_pcnet.rds")
+saveRDS(res, "results/beta_cor.rds")

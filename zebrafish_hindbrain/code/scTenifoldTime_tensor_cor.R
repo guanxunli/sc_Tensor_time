@@ -36,7 +36,7 @@ res_small <- scTenifoldTime_tensor(dta_list = dta_list, time_vec = time_vec, met
                                    ma_nDim = 3)
 res$res_small <- res_small
 rm(res_small)
-
+saveRDS(res, "results/beta_cor.rds")
 ######### For all cells
 dta <- readRDS("data/dta_large.rds")
 sudotime <- readRDS("data/sudotime_large.rds")

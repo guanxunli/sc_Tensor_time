@@ -35,6 +35,7 @@ res_small <- scTenifoldTime_beta(dta_list, method = "cor", time_vec, nComp = 5, 
                            K = 5, maxIter = 10000, maxError = 1e-5)
 res$res_small <- res_small
 rm(res_small)
+saveRDS(res, "results/beta_cor.rds")
 
 ######### For all cells
 dta <- readRDS("data/dta_large.rds")

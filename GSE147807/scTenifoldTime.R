@@ -39,6 +39,7 @@ scTenifoldTime_beta <- function(dta_list, method = "pcnet", time_vec, nComp = 5,
   ## Do regression
   res_regression <- my_regression(network_list = network_list, time_vec = time_vec)
   beta_mat <- res_regression$beta_mat
+  rownames(beta_mat) <- colnames(beta_mat) <- rownames(dta_list[[1]])
   t_mat <- res_regression$t_mat
   rm(res_regression)
   res$beta_mat <- beta_mat
@@ -47,6 +48,7 @@ scTenifoldTime_beta <- function(dta_list, method = "pcnet", time_vec, nComp = 5,
   ## Do regression
   res_regression <- my_regression(network_list = network_tensor, time_vec = time_vec)
   beta_mat <- res_regression$beta_mat
+  rownames(beta_mat) <- colnames(beta_mat) <- rownames(dta_list[[1]])
   t_mat <- res_regression$t_mat
   rm(res_regression)
   res$beta_mat_tensor <- beta_mat
@@ -110,15 +112,6 @@ scTenifoldTime_tensor <- function(dta_list, time_vec, method = "pcnet", nComp = 
     names(gene_diff) <- gene_name
     gene_diff <- sort(gene_diff, decreasing = TRUE)
     res$gene_diff <- gene_diff
-    
-    # library(fgsea)
-    # BIOP <- gmtPathways('https://maayanlab.cloud/Enrichr/geneSetLibrary?mode=text&libraryName=BioPlanet_2019')
-    # set.seed(1)
-    # E <- fgseaMultilevel(BIOP, gene_diff[!grepl('^RPL|^RPS|^RP[[:digit:]]|^MT-',names(gene_diff))],
-    #                      scoreType = scoreType, eps = eps)
-    # E <- E[order(E$pval, decreasing = FALSE),]
-    # E$leadingEdge <- unlist(lapply(E$leadingEdge, function(X){paste0(X, collapse = ';')}))
-    # res$E <- E
     
     return(res)
   }

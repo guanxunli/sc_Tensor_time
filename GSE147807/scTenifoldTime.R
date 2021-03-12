@@ -39,14 +39,18 @@ scTenifoldTime_beta <- function(dta_list, method = "pcnet", time_vec, nComp = 5,
   ## Do regression
   res_regression <- my_regression(network_list = network_list, time_vec = time_vec)
   beta_mat <- res_regression$beta_mat
+  t_mat <- res_regression$t_mat
   rm(res_regression)
   res$beta_mat <- beta_mat
+  res$t_mat <- t_mat
   
   ## Do regression
   res_regression <- my_regression(network_list = network_tensor, time_vec = time_vec)
   beta_mat <- res_regression$beta_mat
+  t_mat <- res_regression$t_mat
   rm(res_regression)
   res$beta_mat_tensor <- beta_mat
+  res$t_mat_tensor <- t_mat
 
   ## return results
   return(res)

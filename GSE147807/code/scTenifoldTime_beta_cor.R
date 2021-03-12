@@ -27,6 +27,7 @@ for (i in 1:4) {
 }
 dta_list[[5]] <- as.matrix(dta[, 1000:n_cell])
 time_vec[5] <- mean(dta_sudotime[colnames(dta_list[[5]]), 1])
+time_vec <- time_vec / max(time_vec)
 
 #### correlation method
 res <- scTenifoldTime_beta(dta_list, method = "cor", time_vec, nComp = 5, q = 0,

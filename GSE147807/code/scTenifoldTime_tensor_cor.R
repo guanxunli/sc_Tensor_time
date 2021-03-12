@@ -26,6 +26,7 @@ for (i in 1:4) {
 }
 dta_list[[5]] <- as.matrix(dta[, 1000:n_cell])
 time_vec[5] <- mean(dta_sudotime[colnames(dta_list[[5]]), 1])
+time_vec <- time_vec / max(time_vec)
 
 set.seed(1)
 res <- scTenifoldTime_tensor(dta_list = dta_list, time_vec = time_vec, method = "cor", nComp = 5, q = 0,

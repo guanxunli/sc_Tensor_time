@@ -72,9 +72,17 @@ tensorDecomposition_time <- function(xList, K = 5, maxError = 1e-5, maxIter = 1e
   index0 <- setdiff(seq_len(length(t_test_p)), index1)
   
   if (length(index0) == 0){
-    stop('All components are varied during the time, please set a smaller threshold for p-value.')
+    tensorOutput <- list()
+    tensorOutput$lambdas <- tensorX$lambdas
+    tensorOutput$U <- tensorX$U
+    return(tensorOutput)
+    print("All components are varied during the time, please set a smaller threshold for p-value.")
   } else if (length(index1) == 0) {
-    stop('All components are not varied during the time, please set a bigger threshold for p-value.')
+    tensorOutput <- list()
+    tensorOutput$lambdas <- tensorX$lambdas
+    tensorOutput$U <- tensorX$U
+    return(tensorOutput)
+    print('All components are not varied during the time, please set a bigger threshold for p-value.')
   } else{
     tensor0 <- array(data = 0, dim = c(nGenes,nGenes, nNet))
     for (i in seq_len(length(index0))) {
@@ -120,5 +128,7 @@ tensorDecomposition_time <- function(xList, K = 5, maxError = 1e-5, maxIter = 1e
   tensorOutput$U <- tensorX$U
   tensorOutput$network0 <- network0
   tensorOutput$network1 <- network1
+  tensorOutput$index0 <- index0
+  tensorOutput$index1 <- index1
   return(tensorOutput)
 }

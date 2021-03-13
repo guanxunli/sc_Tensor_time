@@ -12,6 +12,7 @@ source("pcNet.R")
 source("regression_fun.R")
 source("tensorDecomposition.R")
 source("UMAP_order.R")
+source("scTenifoldTime.R")
 
 dta <- readRDS("data/dta_raw.rds")
 colnames(dta) <- gsub(pattern = "[.]", replacement = "_", x = colnames(dta))
@@ -20,8 +21,8 @@ dta_sudotime2 <- dta_sudotime2[order(dta_sudotime2$O2), ]
 rownames(dta_sudotime2) <- gsub(pattern = "[.]", replacement = "_", x = dta_sudotime2$X)
 dta_sudotime2 <- dta_sudotime2[, -1]
 dta <- dta[, rownames(dta_sudotime2)]
-dta <- scTenifoldNet::scQC(as.matrix(dta))
-# dta <- scTenifoldNet::scQC(as.matrix(dta), minPCT = 0.25)
+# dta <- scTenifoldNet::scQC(as.matrix(dta))
+dta <- scTenifoldNet::scQC(as.matrix(dta), minPCT = 0.25)
 dta <- new_Normalization(dta)
 n_cell <- ncol(dta)
 n_gene <- nrow(dta)
@@ -39,7 +40,7 @@ for (i in 1:7) {
 ## make networks
 network_list <- list()
 for (i in seq_len(length(dta_list))) {
-  network_list[[i]] <- pcNet(dta_list[[i]], nComp = 5, scaleScores = TRUE, symmetric = FALSE, q = 0, verbose = TRUE) 
+  network_list[[i]] <- cor(t(dta_list[[i]]), method = "spearman")
   network_list[[i]] <- round(network_list[[i]], 2)
   print(paste0("Finish network", i))
 }
@@ -61,8 +62,7 @@ set.seed(1)
 E <- UMAP_order(dta = dta)
 res$E$UMAP_dir <- E
 ## One network
-dta_net <- pcNet(as.matrix(dta), nComp = 5, scaleScores = TRUE, symmetric = FALSE, q = 0, verbose = TRUE) 
-dta_net <- round(dta_net, 2)
+dta_net <- round(cor(t(as.matrix(dta)), method = "spearman"), 2)
 rownames(dta_net) <- rownames(dta)
 set.seed(1)
 E <- UMAP_order(dta = dta_net)
@@ -78,6 +78,7 @@ for (i in 1:6) {
 }
 dta_list[[7]] <- as.matrix(dta[, 2401:n_cell])
 time_vec[7] <- mean(dta_sudotime2[colnames(dta_list[[7]]), 3])
+time_vec <- time_vec / max(time_vec)
 
 # dta_list <- list()
 # time_vec <- rep(NA, 7)
@@ -87,47 +88,32 @@ time_vec[7] <- mean(dta_sudotime2[colnames(dta_list[[7]]), 3])
 # }
 # dta_list[[7]] <- as.matrix(dta[, 2501:n_cell])
 # time_vec[7] <- mean(dta_sudotime2[colnames(dta_list[[7]]), 3])
+# time_vec <- time_vec / max(time_vec)
 
-## make networks
-network_list <- list()
-for (i in seq_len(length(dta_list))) {
-  network_list[[i]] <- pcNet(dta_list[[i]], nComp = 5, scaleScores = TRUE, symmetric = FALSE, q = 0, verbose = TRUE) 
-  network_list[[i]] <- round(network_list[[i]], 2)
-  print(paste0("Finish network ", i))
-}
+## scTenifoldTime mehod
+res_cor <- scTenifoldTime_beta(dta_list, time_vec, method = "cor", K = 10)
+res$res_cor <- res_cor
 
-res$network_list <- network_list
+## Without tensor decomposition
 set.seed(1)
-network_tensor <- tensorDecomposition(network_list, K = 5, maxIter = 10000, maxError = 1e-5)
-for (i in 1:length(network_tensor)){
-  diag(network_tensor[[i]]) <- 1
-}
-res$network_tensor <- network_tensor
-print("Finish tensor decomposition part.")
-
-#### Without tensor decomposition for UMAP tesing
-## Getting beta
-res_regression <- my_regression(network_list = network_list, time_vec = time_vec)
-beta_mat <- res_regression$beta_mat
-t_mat <- res_regression$t_mat
-beta_adj <- res_regression$beta_adj
-remove(res_regression)
-rownames(beta_mat) <- rownames(dta)
-colnames(beta_mat) <- rownames(dta)
-
-## UMAP for beta matrix
-set.seed(1)
-E <- UMAP_order(dta = beta_mat)
+E <- UMAP_order(dta = res_cor$beta_mat)
 res$E$beta_time <- E
+beta_filter <- matrix(0, nrow = nrow(res_cor$beta_mat), ncol = nrow(res_cor$beta_mat))       
+index <- which(res_cor$t_mat < 0.05)     
+beta_filter[index] <- res_cor$beta_mat[index]  
+rownames(beta_filter) <- colnames(beta_filter) <- rownames(dta_list[[1]])     
+set.seed(1) 
+E <- UMAP_order(dta = beta_filter)  
+res$E$beta_time_filter <- E
 
-# #### community detecyion
+# #### community detection
 # res_APC <- APC_fun(beta_mat)
 # res_SCORE <- SCORE_fun(beta_adj, K = length(unique(res_APC)))
 # res_SLIM_AP <- MASE_fun(network_list, di = 50, K = 50, gamma = 0.25, m = 8)
 # res$APC <- res_APC
 # res$SCORE <- res_SCORE
 # res$SLIM_AP <- res_SLIM_AP
-# saveRDS(res, "results/res_PCnet2.rds")
+# saveRDS(res, "results/res_cor2.rds")
 # ## Transfer format
 # gene_list <- rownames(dta)
 # names(res_APC) <- gene_list
@@ -182,23 +168,22 @@ res$E$beta_time <- E
 # res$APC_list <- AP_list
 # res$SCORE_list <- SCORE_list
 # res$SLIM_AP_list <- SLIM_AP_list
-# saveRDS(res, "results/res_PCnet2.rds")
+# saveRDS(res, "results/res_cor2.rds")
 
-#### With tensor decomposition for UMAP tesing
-## Getting beta
-res_regression <- my_regression(network_list = network_tensor, time_vec = time_vec)
-beta_mat <- res_regression$beta_mat
-t_mat <- res_regression$t_mat
-beta_adj <- res_regression$beta_adj
-remove(res_regression)
-rownames(beta_mat) <- rownames(dta)
-colnames(beta_mat) <- rownames(dta)
-
-## UMAP for beta matrix
+#### With tensor decomposition
 set.seed(1)
-E <- UMAP_order(dta = beta_mat)
+E <- UMAP_order(dta = res_cor$beta_mat_tensor)
 res$E$beta_time_tensor <- E
-saveRDS(res, "results_7000/res_PCnet2.rds")
+beta_filter <- matrix(0, nrow = nrow(res_cor$beta_mat_tensor), ncol = nrow(res_cor$beta_mat_tensor))       
+index <- which(res_cor$t_mat_tensor < 0.05)     
+beta_filter[index] <- res_cor$beta_mat_tensor[index]
+rownames(beta_filter) <- colnames(beta_filter) <- rownames(dta_list[[1]])     
+set.seed(1) 
+E <- UMAP_order(dta = beta_filter)  
+res$E$beta_time_tensor_filter <- E
+
+saveRDS(res, "results_7000/res_cor2.rds")
+# saveRDS(res, "results_10000/res_cor2.rds")
 
 # #### community detecyion
 # res_APC <- APC_fun(beta_mat)
@@ -207,7 +192,7 @@ saveRDS(res, "results_7000/res_PCnet2.rds")
 # res$APC_tensor <- res_APC
 # res$SCORE_tensor <- res_SCORE
 # res$SLIM_AP_tensor <- res_SLIM_AP
-# saveRDS(res, "results/res_PCnet2.rds")
+# saveRDS(res, "results/res_cor2.rds")
 # ## Transfer format
 # gene_list <- rownames(dta)
 # names(res_APC) <- gene_list
@@ -262,7 +247,7 @@ saveRDS(res, "results_7000/res_PCnet2.rds")
 # res$APC_list_tensor <- AP_list
 # res$SCORE_list_tensor <- SCORE_list
 # res$SLIM_AP_list_tensor <- SLIM_AP_list
-# saveRDS(res, "results/res_PCnet2.rds")
+# saveRDS(res, "results/res_cor2.rds")
 
 # ## check the final results.
 # library(enrichR)
@@ -292,4 +277,4 @@ saveRDS(res, "results_7000/res_PCnet2.rds")
 # res$APC_score <- score_function(res$APC_list)
 # res$SCORE_score <- score_function(res$SCORE_list)
 # res$SLIM_AP_socre <- score_function(res$SLIM_AP_list)
-# saveRDS(res, "res_PCnet2.rds")
+# saveRDS(res, "res_cor2.rds")

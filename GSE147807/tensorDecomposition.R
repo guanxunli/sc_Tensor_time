@@ -30,7 +30,7 @@ tensorDecomposition <- function(xList, K = 5, maxError = 1e-5, maxIter = 1e3){
 
 # time_vec is the time vector for network list
 # thres is the thresdhold for tensordecomposition
-tensorDecomposition_time <- function(xList, K = 5, maxError = 1e-5, maxIter = 1e3, time_vec, thres = 0.05, nDecimal = 2){
+tensorDecomposition_time <- function(xList, K = 5, maxError = 1e-5, maxIter = 1e3, time_vec, thres = 0.05){
   xNets <- length(xList)
   nNet <- xNets
   xGenes <- unique(unlist(lapply(xList, rownames)))
@@ -113,14 +113,11 @@ tensorDecomposition_time <- function(xList, K = 5, maxError = 1e-5, maxIter = 1e
   network0 <- network0 / nNet
   network1 <- network1 / nNet
   
-  network0 <- round(network0, nDecimal)
-  network1 <- round(network1, nDecimal)
-  
-  network0 <- as(network0, 'dgCMatrix')
-  network1 <- as(network1, 'dgCMatrix')
-  
   rownames(network0) <- colnames(network0) <- sGenes
   rownames(network1) <- colnames(network1) <- sGenes
+  
+  gene_diff <- rowSums(abs(network0 - network1))
+  names(gene_diff) <- sGenes
   
   ## return results
   tensorOutput <- list()
@@ -128,5 +125,8 @@ tensorDecomposition_time <- function(xList, K = 5, maxError = 1e-5, maxIter = 1e
   tensorOutput$U <- tensorX$U
   tensorOutput$network0 <- network0
   tensorOutput$network1 <- network1
+  tensorOutput$index0 <- index0
+  tensorOutput$index1 <- index1
+  tensorOutput$gene_diff <- gene_diff
   return(tensorOutput)
 }

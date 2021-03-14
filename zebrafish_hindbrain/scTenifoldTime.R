@@ -59,7 +59,7 @@ scTenifoldTime_beta <- function(dta_list, method = "pcnet", time_vec, nComp = 5,
 }
 
 scTenifoldTime_tensor <- function(dta_list, time_vec, method = "pcnet", nComp = 5, q = 0,
-                           K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05, nDecimal = 2,
+                           K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05, 
                            ma_nDim = 3, scoreType = "pos", eps = 0){
   res <- list()
   n_net <- length(dta_list)
@@ -82,7 +82,7 @@ scTenifoldTime_tensor <- function(dta_list, time_vec, method = "pcnet", nComp = 
   ## tensor decomposition
   set.seed(1)
   tensor_output <- tensorDecomposition_time(network_list, K = K, maxError = maxError, maxIter = maxIter, 
-                                            time_vec = time_vec, thres = thres, nDecimal = nDecimal)
+                                            time_vec = time_vec, thres = thres)
   res$tensor_output <- tensor_output
   print("Finish tensor decomposition part.")
   
@@ -112,15 +112,6 @@ scTenifoldTime_tensor <- function(dta_list, time_vec, method = "pcnet", nComp = 
     names(gene_diff) <- gene_name
     gene_diff <- sort(gene_diff, decreasing = TRUE)
     res$gene_diff <- gene_diff
-    
-    # library(fgsea)
-    # BIOP <- gmtPathways('https://maayanlab.cloud/Enrichr/geneSetLibrary?mode=text&libraryName=BioPlanet_2019')
-    # set.seed(1)
-    # E <- fgseaMultilevel(BIOP, gene_diff[!grepl('^RPL|^RPS|^RP[[:digit:]]|^MT-',names(gene_diff))],
-    #                      scoreType = scoreType, eps = eps)
-    # E <- E[order(E$pval, decreasing = FALSE),]
-    # E$leadingEdge <- unlist(lapply(E$leadingEdge, function(X){paste0(X, collapse = ';')}))
-    # res$E <- E
     
     return(res)
   }

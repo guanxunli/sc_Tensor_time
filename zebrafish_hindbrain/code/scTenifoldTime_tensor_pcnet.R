@@ -32,8 +32,7 @@ time_vec <- time_vec / max(time_vec)
 
 #### correlation method
 res_small <- scTenifoldTime_tensor(dta_list = dta_list, time_vec = time_vec, nComp = 5, q = 0,
-                             K = 5, maxIter = 10000, maxError = 1e-5, thres = 0.05, nDecimal = 2,
-                             ma_nDim = 3)
+                             K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05, ma_nDim = 30)
 res$res_small <- res_small
 rm(res_small)
 saveRDS(res, "results/tensor_pcnet.rds")
@@ -59,8 +58,7 @@ time_vec <- time_vec / max(time_vec)
 
 #### correlation method
 res_large<- scTenifoldTime_tensor(dta_list = dta_list, time_vec = time_vec, nComp = 5, q = 0,
-                                  K = 5, maxIter = 10000, maxError = 1e-5, thres = 0.05, nDecimal = 2,
-                                  ma_nDim = 3)
+                                  K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05, ma_nDim = 30)
 res$res_large <- res_large
 rm(res_large)
 

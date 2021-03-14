@@ -59,8 +59,8 @@ scTenifoldTime_beta <- function(dta_list, time_vec, method = "pcnet", nComp = 5,
 }
 
 scTenifoldTime_tensor <- function(dta_list, time_vec, method = "pcnet", nComp = 5, q = 0,
-                           K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05, nDecimal = 10,
-                           ma_nDim = 3, scoreType = "pos", eps = 0){
+                           K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05,
+                           ma_nDim = 30, scoreType = "pos", eps = 0){
   res <- list()
   n_net <- length(dta_list)
   nGenes <- nrow(dta_list[[1]])
@@ -82,7 +82,7 @@ scTenifoldTime_tensor <- function(dta_list, time_vec, method = "pcnet", nComp = 
   ## tensor decomposition
   set.seed(1)
   tensor_output <- tensorDecomposition_time(network_list, K = K, maxError = maxError, maxIter = maxIter, 
-                                            time_vec = time_vec, thres = thres, nDecimal = nDecimal)
+                                            time_vec = time_vec, thres = thres)
   res$tensor_output <- tensor_output
   print("Finish tensor decomposition part.")
   

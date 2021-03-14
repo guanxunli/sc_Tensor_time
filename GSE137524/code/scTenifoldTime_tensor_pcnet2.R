@@ -50,8 +50,7 @@ time_vec <- time_vec / max(time_vec)
 
 set.seed(1)
 res <- scTenifoldTime_tensor(dta_list = dta_list, time_vec = time_vec, nComp = 5, q = 0,
-                      K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05, nDecimal = 2,
-                      ma_nDim = 30)
+                      K = 10, maxIter = 10000, maxError = 1e-5, thres = 0.05, ma_nDim = 30)
 
 saveRDS(res, "results_7000/tensor_pcnet2.rds")
 # saveRDS(res, "results_10000/pcnet_time2.rds")

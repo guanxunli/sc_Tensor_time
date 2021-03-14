@@ -34,10 +34,11 @@ for (i in 1:6) {
   dta_list[[i]] <- as.matrix(dta[, (400 * (i - 1) + 1):(400 * (i + 1))])
   time_vec[i] <- mean(dta_sudotime2[colnames(dta_list[[i]]), 3])
 }
-time_vec <- time_vec / max(time_vec)
 
 dta_list[[7]] <- as.matrix(dta[, 2401:n_cell])
 time_vec[7] <- mean(dta_sudotime2[colnames(dta_list[[7]]), 3])
+time_vec <- time_vec / max(time_vec)
+
 
 # dta_list <- list()
 # time_vec <- rep(NA, 7)

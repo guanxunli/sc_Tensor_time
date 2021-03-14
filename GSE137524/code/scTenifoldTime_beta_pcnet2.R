@@ -28,33 +28,33 @@ n_cell <- ncol(dta)
 n_gene <- nrow(dta)
 res <- list()
 
-#### No trajectary used
-dta_list <- list()
-time_vec <- 1:7
-set.seed(2020)
-for (i in 1:7) {
-  sample_index <- sample(seq_len(n_cell), 800, replace = TRUE)
-  dta_list[[i]] <- as.matrix(dta[, sample_index])
-}
-
-## make networks
-network_list <- list()
-for (i in seq_len(length(dta_list))) {
-  network_list[[i]] <- pcNet(dta_list[[i]], nComp = 5, scaleScores = TRUE, symmetric = FALSE, q = 0, verbose = TRUE) 
-  network_list[[i]] <- round(network_list[[i]], 2)
-  print(paste0("Finish network", i))
-}
-set.seed(1)
-network_tensor <- tensorDecomposition(network_list, K = 5, maxIter = 10000, maxError = 1e-5)
-res$network_tensor_notraj <- network_tensor
-res_regression <- my_regression(network_list = network_tensor, time_vec = time_vec)
-beta_mat <- res_regression$beta_mat
-rownames(beta_mat) <- rownames(dta)
-set.seed(1)
-E <- UMAP_order(dta = beta_mat)
-res$E <- list()
-res$E$no_traj <- E
-print("Finish no trajectary part.")
+# #### No trajectary used
+# dta_list <- list()
+# time_vec <- 1:7
+# set.seed(2020)
+# for (i in 1:7) {
+#   sample_index <- sample(seq_len(n_cell), 800, replace = TRUE)
+#   dta_list[[i]] <- as.matrix(dta[, sample_index])
+# }
+# 
+# ## make networks
+# network_list <- list()
+# for (i in seq_len(length(dta_list))) {
+#   network_list[[i]] <- pcNet(dta_list[[i]], nComp = 5, scaleScores = TRUE, symmetric = FALSE, q = 0, verbose = TRUE) 
+#   network_list[[i]] <- round(network_list[[i]], 2)
+#   print(paste0("Finish network", i))
+# }
+# set.seed(1)
+# network_tensor <- tensorDecomposition(network_list, K = 5, maxIter = 10000, maxError = 1e-5)
+# res$network_tensor_notraj <- network_tensor
+# res_regression <- my_regression(network_list = network_tensor, time_vec = time_vec)
+# beta_mat <- res_regression$beta_mat
+# rownames(beta_mat) <- rownames(dta)
+# set.seed(1)
+# E <- UMAP_order(dta = beta_mat)
+# res$E <- list()
+# res$E$no_traj <- E
+# print("Finish no trajectary part.")
 
 #### Two basic method
 ## Do UMAP directly
@@ -79,6 +79,7 @@ for (i in 1:6) {
 }
 dta_list[[7]] <- as.matrix(dta[, 2401:n_cell])
 time_vec[7] <- mean(dta_sudotime2[colnames(dta_list[[7]]), 3])
+time_vec <- time_vec / max(time_vec)
 
 # dta_list <- list()
 # time_vec <- rep(NA, 7)
@@ -90,7 +91,7 @@ time_vec[7] <- mean(dta_sudotime2[colnames(dta_list[[7]]), 3])
 # time_vec[7] <- mean(dta_sudotime2[colnames(dta_list[[7]]), 3])
 
 ## scTenifoldTime mehod
-res_pcnet <- scTenifoldTime_beta(dta_list, time_vec, method = "pcnet", K = 10)
+res_pcnet <- scTenifoldTime_beta(dta_list, time_vec, method = "pcnet", K = 5)
 res$res_pcnet <- res_pcnet
 
 ## Without tensor decomposition

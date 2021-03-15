@@ -5,7 +5,12 @@
 original data/data
 normalization test/networks
 PT data/data
-GSE137524/results
 simulation data/results
+GSE137524/results
+GSE147807/results
+zebrafish_hindbrain/results
+GSE137524/task
+GSE147807/task
+zebrafish_hindbrain/task
 
 

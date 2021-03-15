@@ -1,2 +1,2 @@
 # sc_Tensor_time
-Do some quick tensor based method tests for scRNA-seq data. 
+There are two methods scTenifoldTime_beta and scTenifoldTime_tensor. The first method is based on the beta coefficients matrix and the second method is based on the tensor decomposition.

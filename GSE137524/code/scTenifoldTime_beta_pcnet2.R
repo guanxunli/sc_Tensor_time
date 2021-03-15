@@ -182,7 +182,7 @@ set.seed(1)
 E <- UMAP_order(dta = beta_filter)  
 res$E$beta_time_tensor_filter <- E
 
-saveRDS(res, "results_7000/res_PCnet2.rds")
+saveRDS(res, "results_7000/beta_pcnet2.rds")
 # saveRDS(res, "results_10000/res_PCnet2.rds")
 
 # #### community detecyion

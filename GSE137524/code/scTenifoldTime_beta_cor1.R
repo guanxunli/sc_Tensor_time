@@ -69,7 +69,6 @@ set.seed(1)
 E <- UMAP_order(dta = dta_net)
 res$E$dta_net <- E
 print("Finish two basic methods.")
-saveRDS(res, "results_10000/res_cor1.rds")
 
 #### Now consider our own method
 dta_list <- list()
@@ -175,7 +174,7 @@ E <- UMAP_order(dta = beta_filter)
 res$E$beta_time_tensor_filter <- E
 
 ## save results.
-saveRDS(res, "results_7000/res_cor1.rds")
+saveRDS(res, "results_7000/beta_cor1.rds")
 # saveRDS(res, "results_10000/res_cor1.rds")
 
 # #### community detection

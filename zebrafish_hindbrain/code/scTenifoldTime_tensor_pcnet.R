@@ -7,13 +7,26 @@ source("new_Normalization.R")
 source("pcNet.R")
 source("regression_fun.R")
 source("tensorDecomposition.R")
-source("UMAP_order.R")
 source("scTenifoldTime.R")
 
 ######## For group 2
 dta <- readRDS("data/dta_small.rds")
 sudotime <- readRDS("data/sudotime_small.rds")
 dta <- scTenifoldNet::scQC(as.matrix(dta)) 
+## remove replicated gene
+gene_name <- toupper(rownames(dta))
+index <- which(duplicated(gene_name) == TRUE)
+index_del <- rep(NA, length(index))
+for (i in 1:length(index)){
+  index_dup <- which(gene_name == gene_name[index[i]])
+  if (rownames(dta)[index_dup[1]] ==  gene_name[index[i]]){
+    index_del[i] <- index_dup[1]
+  } else{
+    index_del[i] <- index_dup[2]
+  }
+}
+dta <- dta[-index_del, ]
+## Do normalization
 dta <- new_Normalization(dta)
 n_cell <- ncol(dta)
 n_gene <- nrow(dta)
@@ -41,6 +54,20 @@ saveRDS(res, "results/tensor_pcnet.rds")
 dta <- readRDS("data/dta_large.rds")
 sudotime <- readRDS("data/sudotime_large.rds")
 dta <- scTenifoldNet::scQC(as.matrix(dta)) 
+## remove replicated gene
+gene_name <- toupper(rownames(dta))
+index <- which(duplicated(gene_name) == TRUE)
+index_del <- rep(NA, length(index))
+for (i in 1:length(index)){
+  index_dup <- which(gene_name == gene_name[index[i]])
+  if (rownames(dta)[index_dup[1]] ==  gene_name[index[i]]){
+    index_del[i] <- index_dup[1]
+  } else{
+    index_del[i] <- index_dup[2]
+  }
+}
+dta <- dta[-index_del, ]
+## Do normalization
 dta <- new_Normalization(dta)
 n_cell <- ncol(dta)
 n_gene <- nrow(dta)

@@ -18,7 +18,7 @@ scTenifoldTime_beta <- function(dta_list, method = "pcnet", time_vec, nComp = 5,
   network_list <- list()
   for (i in seq_len(n_net)) {
     if (method == "pcnet"){
-      network_list[[i]] <- scTenifoldNet::pcNet(dta_list[[i]], nComp = nComp, scaleScores = TRUE, symmetric = FALSE, q = q, verbose = TRUE)
+      network_list[[i]] <- pcNet(dta_list[[i]], nComp = nComp, scaleScores = TRUE, symmetric = FALSE, q = q, verbose = TRUE)
       network_list[[i]] <- round(network_list[[i]], 5)
     } else{
       network_list[[i]] <- cor(t(dta_list[[i]]), method = "spearman")
@@ -69,7 +69,7 @@ scTenifoldTime_tensor <- function(dta_list, time_vec, method = "pcnet", nComp = 
   network_list <- list()
   for (i in seq_len(n_net)) {
     if (method == "pcnet"){
-      network_list[[i]] <- scTenifoldNet::pcNet(dta_list[[i]], nComp = nComp, scaleScores = TRUE, symmetric = FALSE, q = q, verbose = TRUE)
+      network_list[[i]] <- pcNet(dta_list[[i]], nComp = nComp, scaleScores = TRUE, symmetric = FALSE, q = q, verbose = TRUE)
       network_list[[i]] <- round(network_list[[i]], 5)
     } else{
       network_list[[i]] <- cor(t(dta_list[[i]]), method = "spearman")

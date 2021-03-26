@@ -33,8 +33,8 @@ pcNet <- function(X,
   }
   
   # # Standardizing the data
-  # X <- (scale(Matrix::t(X)))
-  X <- t(X)
+  X <- (scale(Matrix::t(X)))
+  # X <- t(X)
   
   # Identify the number of rows in the input matrix
   n <- ncol(X)

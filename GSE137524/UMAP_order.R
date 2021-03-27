@@ -26,3 +26,30 @@ UMAP_order <- function(dta, scoreType = "pos", eps = 0){
   res <- pathway_order(mDistance, scoreType = scoreType, eps = eps)
   return(res)
 }
+
+TSNE_order <- function(dta, scoreType = "pos", eps = 0){
+  set.seed(1)
+  C <- cov(dta)
+  PCA <- RSpectra::eigs(C, 50)
+  TSNE <- Rtsne::Rtsne(PCA$vectors)
+  # set.seed(1)
+  # dta_svd <- RSpectra::svds(dta, k = 50)
+  # dta_pcscore <-  t(t(dta_svd$u) * dta_svd$d)
+  # TSNE <- Rtsne::Rtsne(dta_pcscore)
+  D <- mahalanobis(TSNE$Y, center = colMeans(TSNE$Y), cov = cov(TSNE$Y))
+  names(D) <- rownames(dta)
+  D <- sort(D, decreasing = TRUE)
+  cD <- D
+  names(cD) <- toupper(names(D))
+  cD <- cD[!grepl('RPL|RPS|RP[[:digit:]]+|MT-', names(cD))]
+  set.seed(1)
+  eD <- fgseaMultilevel(BIOP, cD, scoreType = scoreType, eps = eps)
+  # eD <- fgseaMultilevel(BIOP, cD, scoreType = scoreType)
+  eD$leadingEdge <- unlist(lapply(eD$leadingEdge, function(X){paste0(X,collapse = ';')}))
+  eD <- eD[eD$padj < 0.05,,drop=FALSE]
+  index <- which(eD$pathway == "EGFR1 pathway")
+  res <- list()
+  res$index <- index
+  res$E <- eD
+  return(res)
+}

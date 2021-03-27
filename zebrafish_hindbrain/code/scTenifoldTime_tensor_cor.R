@@ -27,7 +27,7 @@ for (i in 1:length(index)){
 }
 dta <- dta[-index_del, ]
 ## Do normalization
-# dta <- new_Normalization(dta)
+dta <- new_Normalization(dta)
 n_cell <- ncol(dta)
 n_gene <- nrow(dta)
 res <- list()

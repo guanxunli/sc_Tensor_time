@@ -7,7 +7,6 @@ source("new_Normalization.R")
 source("pcNet.R")
 source("regression_fun.R")
 source("tensorDecomposition.R")
-source("UMAP_order.R")
 source("scTenifoldTime.R")
 
 dta <- readRDS("data/dta_raw.rds")
